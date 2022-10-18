@@ -15,7 +15,11 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-        cout << "Hello, World!\n";
+    
+    //Begin CS170 
+    string kan;
+    cin >>  kan;
+    cout << "Hello, " << kan << "\n";
     
     return 0;
 }
