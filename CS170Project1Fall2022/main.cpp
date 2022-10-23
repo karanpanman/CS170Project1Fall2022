@@ -10,13 +10,35 @@
 #include <queue>
 #include <vector>
 #include <array>
+#include <map>
 
 using namespace std;
 
-void PrintPuzzle(vector<vector<int>> printPuzzle){
-    for (unsigned i = 0; i < printPuzzle.size(); i++){
-        for (unsigned j = 0; j < printPuzzle.size(); ++j){
-            cout << printPuzzle[i][j] << " ";
+struct Point {
+    int x;
+    int y;
+    
+};
+
+
+Point findZeroPos ( vector<vector<int>> puzzle){
+    Point pos;
+    for (unsigned i = 0; i < puzzle.size(); i++){
+        for (unsigned j = 0; j < puzzle.size(); ++j){
+            if ( puzzle[i][j] == 0 ) {
+                pos.x = i;
+                pos.y = j;
+                return pos;
+            }
+        }
+    }
+    return pos;
+}
+
+void printPuzzle(vector<vector<int>> puzzle){
+    for (unsigned i = 0; i < puzzle.size(); i++){
+        for (unsigned j = 0; j < puzzle.size(); ++j){
+            cout << puzzle[i][j] << " ";
         }
         cout << endl;
     }
@@ -28,11 +50,13 @@ int main(int argc, const char * argv[]) {
         {1,2,3}, {4,5,6},{7,8,0}
     };
     
+    //Initialize Our own custom Puzzle as a 3x3 2-D Vector
     vector<vector<int>> vectPuzzle;
     vectPuzzle.resize(3);
     for (unsigned i = 0; i < vectPuzzle.size(); ++i){
         vectPuzzle[i].resize(3);
     }
+    
     
     
     //The end goal state we are striving for
@@ -43,8 +67,12 @@ int main(int argc, const char * argv[]) {
         {7,8,0}
     };
     
+    Point zeroPos;
+    zeroPos = findZeroPos(vectSolution);
+    
     //Print Vector Puzzles
-    PrintPuzzle(vectSolution);
+    printPuzzle(vectSolution);
+    
     
     
     //cout << slidePuzzle[1][2] << endl;
