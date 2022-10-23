@@ -44,18 +44,36 @@ void printPuzzle(vector<vector<int>> puzzle){
     }
 }
 
-vector<vector<int>> moveUp(vector<vector<int>> puzzle, Point zero){
+//Operators: moveUp, moveDown, moveLeft, moveRight
+vector<vector<int>> moveUp(vector<vector<int>> puzzle){
+    Point zero = findZeroPos(puzzle);
     puzzle[zero.x][zero.y] = puzzle[zero.x-1][zero.y];
     puzzle[zero.x-1][zero.y] = 0;
-    zero.x = zero.x-1;
+    return puzzle;
+}
+
+vector<vector<int>> moveDown(vector<vector<int>> puzzle){
+    Point zero = findZeroPos(puzzle);
+    puzzle[zero.x][zero.y] = puzzle[zero.x+1][zero.y];
+    puzzle[zero.x+1][zero.y] = 0;
+    return puzzle;
+}
+
+vector<vector<int>> moveLeft(vector<vector<int>> puzzle){
+    Point zero = findZeroPos(puzzle);
+    puzzle[zero.x][zero.y] = puzzle[zero.x][zero.y-1];
+    puzzle[zero.x][zero.y-1] = 0;
+    return puzzle;
+}
+
+vector<vector<int>> moveRight(vector<vector<int>> puzzle){
+    Point zero = findZeroPos(puzzle);
+    puzzle[zero.x][zero.y] = puzzle[zero.x][zero.y+1];
+    puzzle[zero.x][zero.y+1] = 0;
     return puzzle;
 }
 
 int main(int argc, const char * argv[]) {
-    int slidePuzzle [3][3] =
-    {
-        {1,2,3}, {4,5,6},{7,8,0}
-    };
     
     //Initialize Our own custom Puzzle as a 3x3 2-D Vector
     vector<vector<int>> vectPuzzle;
@@ -80,9 +98,35 @@ int main(int argc, const char * argv[]) {
     //Print Vector Puzzles
     printPuzzle(vectSolution);
     cout << endl;
-    printPuzzle(moveUp(vectSolution, zeroPos));
+    vectSolution = moveUp(vectSolution);
+    printPuzzle(vectSolution);
+    cout << endl;
+    vectSolution = moveUp(vectSolution);
+    printPuzzle(vectSolution);
+    cout << endl;
     
-    cout << "X: " << zeroPos.x << " Y:" << zeroPos.y << endl;
+    vectSolution = moveLeft(vectSolution);
+    printPuzzle(vectSolution);
+    cout << endl;
+    vectSolution = moveLeft(vectSolution);
+    printPuzzle(vectSolution);
+    cout << endl;
+    
+    vectSolution = moveDown(vectSolution);
+    printPuzzle(vectSolution);
+    cout << endl;
+    vectSolution = moveDown(vectSolution);
+    printPuzzle(vectSolution);
+    cout << endl;
+    
+    vectSolution = moveRight(vectSolution);
+    printPuzzle(vectSolution);
+    cout << endl;
+    vectSolution = moveRight(vectSolution);
+    printPuzzle(vectSolution);
+    cout << endl;
+    
+    //cout << "X: " << zeroPos.x << " Y:" << zeroPos.y << endl;
     
     
     
