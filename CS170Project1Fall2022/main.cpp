@@ -14,12 +14,32 @@
 
 using namespace std;
 
+//Used to track the 0/Blank position in the vector
 struct Point {
     int x;
     int y;
     
 };
 
+vector<vector<int>> puzzleSolution
+{
+    {1,2,3},
+    {4,5,6},
+    {7,8,0}
+};
+
+struct Problem{
+    vector<vector<int>> INITIALSTATE;
+    
+    bool GOALTEST(vector<vector<int>> puzzle){
+        for (unsigned i = 0; i < puzzle.size(); i++){
+            for (unsigned j = 0; j < puzzle[i].size(); ++j){
+                if ( puzzle[i][j] != puzzleSolution[i][j] ) { return false; }
+            }
+        }
+        return true;
+    }
+};
 
 Point findZeroPos ( vector<vector<int>> puzzle){
     Point pos;
@@ -73,6 +93,17 @@ vector<vector<int>> moveRight(vector<vector<int>> puzzle){
     return puzzle;
 }
 
+//Create Heuristics for different Algorithms:
+
+
+
+
+struct node {
+    
+    int val;
+    
+};
+
 int main(int argc, const char * argv[]) {
     
     //Initialize Our own custom Puzzle as a 3x3 2-D Vector
@@ -82,48 +113,46 @@ int main(int argc, const char * argv[]) {
         vectPuzzle[i].resize(3);
     }
     
+    node *parent = new node;
+    parent->val = 5;
+    cout << parent->val << endl;
     
     
     //The end goal state we are striving for
-    vector<vector<int>> vectSolution
-    {
-        {1,2,3},
-        {4,5,6},
-        {7,8,0}
-    };
+    
     
     Point zeroPos;
-    zeroPos = findZeroPos(vectSolution);
+    zeroPos = findZeroPos(puzzleSolution);
     
     //Print Vector Puzzles
-    printPuzzle(vectSolution);
-    cout << endl;
-    vectSolution = moveUp(vectSolution);
-    printPuzzle(vectSolution);
-    cout << endl;
-    vectSolution = moveUp(vectSolution);
-    printPuzzle(vectSolution);
-    cout << endl;
-    
-    vectSolution = moveLeft(vectSolution);
-    printPuzzle(vectSolution);
-    cout << endl;
-    vectSolution = moveLeft(vectSolution);
-    printPuzzle(vectSolution);
-    cout << endl;
-    
-    vectSolution = moveDown(vectSolution);
-    printPuzzle(vectSolution);
-    cout << endl;
-    vectSolution = moveDown(vectSolution);
-    printPuzzle(vectSolution);
-    cout << endl;
-    
-    vectSolution = moveRight(vectSolution);
-    printPuzzle(vectSolution);
-    cout << endl;
-    vectSolution = moveRight(vectSolution);
-    printPuzzle(vectSolution);
+//    printPuzzle(puzzleSolution);
+//    cout << endl;
+//    puzzleSolution = moveUp(puzzleSolution);
+//    printPuzzle(puzzleSolution);
+//    cout << endl;
+//    puzzleSolution = moveUp(puzzleSolution);
+//    printPuzzle(puzzleSolution);
+//    cout << endl;
+//
+//    puzzleSolution = moveLeft(puzzleSolution);
+//    printPuzzle(puzzleSolution);
+//    cout << endl;
+//    puzzleSolution = moveLeft(puzzleSolution);
+//    printPuzzle(puzzleSolution);
+//    cout << endl;
+//
+//    puzzleSolution = moveDown(puzzleSolution);
+//    printPuzzle(puzzleSolution);
+//    cout << endl;
+//    puzzleSolution = moveDown(puzzleSolution);
+//    printPuzzle(puzzleSolution);
+//    cout << endl;
+//
+//    puzzleSolution = moveRight(puzzleSolution);
+//    printPuzzle(puzzleSolution);
+//    cout << endl;
+//    puzzleSolution = moveRight(puzzleSolution);
+//    printPuzzle(puzzleSolution);
     cout << endl;
     
     //cout << "X: " << zeroPos.x << " Y:" << zeroPos.y << endl;
