@@ -13,6 +13,15 @@
 
 using namespace std;
 
+void PrintPuzzle(vector<vector<int>> printPuzzle){
+    for (unsigned i = 0; i < printPuzzle.size(); i++){
+        for (unsigned j = 0; j < printPuzzle.size(); ++j){
+            cout << printPuzzle[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
 int main(int argc, const char * argv[]) {
     int slidePuzzle [3][3] =
     {
@@ -20,6 +29,11 @@ int main(int argc, const char * argv[]) {
     };
     
     vector<vector<int>> vectPuzzle;
+    vectPuzzle.resize(3);
+    for (unsigned i = 0; i < vectPuzzle.size(); ++i){
+        vectPuzzle[i].resize(3);
+    }
+    
     
     //The end goal state we are striving for
     vector<vector<int>> vectSolution
@@ -29,11 +43,10 @@ int main(int argc, const char * argv[]) {
         {7,8,0}
     };
     
-    vectPuzzle.resize(3);
-    for (unsigned i = 0; i < vectPuzzle.size(); ++i){
-        vectPuzzle[i].resize(3);
-    }
+    //Print Vector Puzzles
+    PrintPuzzle(vectSolution);
     
-    cout << slidePuzzle[1][2] << endl;
+    
+    //cout << slidePuzzle[1][2] << endl;
     return 0;
 }
