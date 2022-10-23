@@ -24,7 +24,7 @@ struct Point {
 Point findZeroPos ( vector<vector<int>> puzzle){
     Point pos;
     for (unsigned i = 0; i < puzzle.size(); i++){
-        for (unsigned j = 0; j < puzzle.size(); ++j){
+        for (unsigned j = 0; j < puzzle[i].size(); ++j){
             if ( puzzle[i][j] == 0 ) {
                 pos.x = i;
                 pos.y = j;
@@ -37,11 +37,18 @@ Point findZeroPos ( vector<vector<int>> puzzle){
 
 void printPuzzle(vector<vector<int>> puzzle){
     for (unsigned i = 0; i < puzzle.size(); i++){
-        for (unsigned j = 0; j < puzzle.size(); ++j){
+        for (unsigned j = 0; j < puzzle[i].size(); ++j){
             cout << puzzle[i][j] << " ";
         }
         cout << endl;
     }
+}
+
+vector<vector<int>> moveUp(vector<vector<int>> puzzle, Point zero){
+    puzzle[zero.x][zero.y] = puzzle[zero.x-1][zero.y];
+    puzzle[zero.x-1][zero.y] = 0;
+    zero.x = zero.x-1;
+    return puzzle;
 }
 
 int main(int argc, const char * argv[]) {
@@ -72,6 +79,10 @@ int main(int argc, const char * argv[]) {
     
     //Print Vector Puzzles
     printPuzzle(vectSolution);
+    cout << endl;
+    printPuzzle(moveUp(vectSolution, zeroPos));
+    
+    cout << "X: " << zeroPos.x << " Y:" << zeroPos.y << endl;
     
     
     
