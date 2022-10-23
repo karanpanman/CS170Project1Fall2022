@@ -14,6 +14,6 @@
 using namespace std;
 
 int main(int argc, const char * argv[]) {
-    cout << "Testing 1 2 3" << endl;
+    
     return 0;
 }
