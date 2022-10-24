@@ -39,6 +39,7 @@ Point findZeroPos ( vector<vector<int>> puzzle){
 struct node {
     
     vector<vector<int>> STATE;
+    int h;
     
 };
 
@@ -132,13 +133,11 @@ class QUEUEING_FUNCTION {
 public:
     queue<node*> localNodes;
     //come back to this and fix h value
-    int h;
     
     
     QUEUEING_FUNCTION( queue<node*> nodes){
         localNodes = nodes;
     }
-        
         
     queue<node*> EXPAND( node* headNode, Problem problem){
         Point zeroPos = findZeroPos(headNode->STATE);
@@ -147,23 +146,75 @@ public:
             node *up = new node;
             up->STATE = problem.moveUp(headNode->STATE);
             localNodes.push(up);
+            up->h = 0;
             
         }
         if ( zeroPos.x != 2 ){
             node *down = new node;
             down->STATE = problem.moveDown(headNode->STATE);
             localNodes.push(down);
+            down->h = 0;
         }
         if ( zeroPos.y != 0 ){
             node *left = new node;
             left->STATE = problem.moveLeft(headNode->STATE);
             localNodes.push(left);
+            left->h = 0;
         }
         if ( zeroPos.y != 2 ){
             node *right = new node;
             right->STATE = problem.moveRight(headNode->STATE);
             localNodes.push(right);
+            right->h = 0;
         }
+        
+        return localNodes;
+    }
+    
+};
+
+class AstarMisplacedTile: public QUEUEING_FUNCTION {
+public:
+    
+    void calculateH(node* headNode){
+        headNode->h = 0;
+        for (unsigned i = 0; i < headNode->STATE.size(); i++){
+            for (unsigned j = 0; j < headNode->STATE[i].size(); ++j){
+                if ( headNode->STATE[i][j] != puzzleSolution[i][j] ) { ++headNode->h; }
+            }
+        }
+    }
+    
+    queue<node*> EXPAND( node* headNode, Problem problem){
+        Point zeroPos = findZeroPos(headNode->STATE);
+        vector<node*> sortedOrder;
+        
+        if ( zeroPos.x != 0 ){
+            node *up = new node;
+            up->STATE = problem.moveUp(headNode->STATE);
+            //localNodes.push(up);
+            calculateH(up);
+            sortedOrder.push_back(up);
+        }
+        if ( zeroPos.x != 2 ){
+            node *down = new node;
+            down->STATE = problem.moveDown(headNode->STATE);
+            //localNodes.push(down);
+            calculateH(down);
+        }
+        if ( zeroPos.y != 0 ){
+            node *left = new node;
+            left->STATE = problem.moveLeft(headNode->STATE);
+            //localNodes.push(left);
+            calculateH(left);
+        }
+        if ( zeroPos.y != 2 ){
+            node *right = new node;
+            right->STATE = problem.moveRight(headNode->STATE);
+            //localNodes.push(right);
+            calculateH(right);
+        }
+        
         
         return localNodes;
     }
@@ -179,7 +230,6 @@ node* general_search( Problem problem){
     root->STATE = problem.INITIALSTATE;
     nodes.push(root);
 
-    unsigned i = 0;
     while ( !nodes.empty() ){
         node* headNode = nodes.front();
         nodes.pop();
