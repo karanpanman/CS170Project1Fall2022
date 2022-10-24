@@ -11,6 +11,7 @@
 #include <vector>
 #include <array>
 #include <map>
+#include <algorithm>
 
 using namespace std;
 
@@ -53,7 +54,7 @@ struct Problem{
     vector<vector<int>> INITIALSTATE
     {
         {1,2,3},
-        {4,3,6},
+        {4,5,6},
         {0,7,8}
     };
     
@@ -128,16 +129,49 @@ void printPuzzle(vector<vector<int>> puzzle){
 
 //Treating Base class Queueing Function as Uniform Cost for now since H is hardcoded zero
 class QUEUEING_FUNCTION {
+public:
+    queue<node*> localNodes;
+    //come back to this and fix h value
+    int h;
     
-    public:
-    queue<node*> EXPAND( node* headNode, Problem problem){
+    
+    QUEUEING_FUNCTION( queue<node*> nodes){
+        localNodes = nodes;
+    }
         
+        
+    queue<node*> EXPAND( node* headNode, Problem problem){
+        Point zeroPos = findZeroPos(headNode->STATE);
+        
+        if ( zeroPos.x != 0 ){
+            node *up = new node;
+            up->STATE = problem.moveUp(headNode->STATE);
+            localNodes.push(up);
+            
+        }
+        if ( zeroPos.x != 2 ){
+            node *down = new node;
+            down->STATE = problem.moveDown(headNode->STATE);
+            localNodes.push(down);
+        }
+        if ( zeroPos.y != 0 ){
+            node *left = new node;
+            left->STATE = problem.moveLeft(headNode->STATE);
+            localNodes.push(left);
+        }
+        if ( zeroPos.y != 2 ){
+            node *right = new node;
+            right->STATE = problem.moveRight(headNode->STATE);
+            localNodes.push(right);
+        }
+        
+        return localNodes;
     }
     
 };
 
 
-node* general_search( Problem problem, QUEUEING_FUNCTION q){
+node* general_search( Problem problem){
     node* root = new node;
     //MAKE QUEUE
     queue<node*> nodes;
@@ -152,7 +186,8 @@ node* general_search( Problem problem, QUEUEING_FUNCTION q){
         if ( problem.GOALTEST(headNode->STATE) ){
             return headNode;
         }
-        
+        QUEUEING_FUNCTION QUEUEINGFUNCTION(nodes);
+        nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
     }
     return root;
 }
@@ -192,9 +227,18 @@ int main(int argc, const char * argv[]) {
         cout << "LET'S GOOOOO" << endl;
     }
     
-    cout << "Hello: Input your numbies below" << endl;
     Problem check1;
     printPuzzle(check1.INITIALSTATE);
+    cout << endl;
+    
+    Problem problem;
+    //QUEUEING_FUNCTION q;
+    
+    node *Test = new node;
+    
+    Test = general_search(problem);
+    
+    printPuzzle(Test->STATE);
     
     //The end goal state we are striving for
     
