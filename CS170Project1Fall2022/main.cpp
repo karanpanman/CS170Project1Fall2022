@@ -41,7 +41,12 @@ struct node {
     vector<vector<int>> STATE;
     int h;
     
+    bool operator < (const node& newNode ) const{
+        return (h < newNode.h);
+    }
+    
 };
+
 
 
 vector<vector<int>> puzzleSolution
@@ -54,9 +59,9 @@ vector<vector<int>> puzzleSolution
 struct Problem{
     vector<vector<int>> INITIALSTATE
     {
-        {1,2,3},
-        {4,5,6},
-        {0,7,8}
+        {1,3,6},
+        {5,0,7},
+        {4,8,2}
     };
     
 //    void inputProblem(){
@@ -176,6 +181,10 @@ public:
 class AstarMisplacedTile: public QUEUEING_FUNCTION {
 public:
     
+    AstarMisplacedTile ( queue<node*> nodes) : QUEUEING_FUNCTION(nodes){
+        localNodes = nodes;
+    }
+    
     void calculateH(node* headNode){
         headNode->h = 0;
         for (unsigned i = 0; i < headNode->STATE.size(); i++){
@@ -192,27 +201,36 @@ public:
         if ( zeroPos.x != 0 ){
             node *up = new node;
             up->STATE = problem.moveUp(headNode->STATE);
-            //localNodes.push(up);
             calculateH(up);
+            cout << "H equals: " << up->h << endl;
             sortedOrder.push_back(up);
         }
         if ( zeroPos.x != 2 ){
             node *down = new node;
             down->STATE = problem.moveDown(headNode->STATE);
-            //localNodes.push(down);
             calculateH(down);
+            cout << "H equals: " << down->h << endl;
+            sortedOrder.push_back(down);
         }
         if ( zeroPos.y != 0 ){
             node *left = new node;
             left->STATE = problem.moveLeft(headNode->STATE);
-            //localNodes.push(left);
             calculateH(left);
+            cout << "H equals: " << left->h << endl;
+            sortedOrder.push_back(left);
         }
         if ( zeroPos.y != 2 ){
             node *right = new node;
             right->STATE = problem.moveRight(headNode->STATE);
-            //localNodes.push(right);
             calculateH(right);
+            cout << "H equals: " << right->h << endl;
+            sortedOrder.push_back(right);
+        }
+        
+        sort(sortedOrder.begin(), sortedOrder.end());
+        
+        for (unsigned i = 0; i < sortedOrder.size(); ++i){
+            localNodes.push(sortedOrder.at(i));
         }
         
         
@@ -236,7 +254,7 @@ node* general_search( Problem problem){
         if ( problem.GOALTEST(headNode->STATE) ){
             return headNode;
         }
-        QUEUEING_FUNCTION QUEUEINGFUNCTION(nodes);
+        AstarMisplacedTile QUEUEINGFUNCTION(nodes);
         nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
     }
     return root;
