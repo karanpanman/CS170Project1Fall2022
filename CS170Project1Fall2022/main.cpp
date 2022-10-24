@@ -41,10 +41,13 @@ struct node {
     vector<vector<int>> STATE;
     int h;
     
-    bool operator < (const node& newNode ) const{
-        return (h < newNode.h);
+};
+
+//Helps me sort by h to create proper queue
+struct lesser_h{
+    inline bool operator() (const node* n1, const node* n2){
+        return (n1->h < n2->h);
     }
-    
 };
 
 
@@ -59,9 +62,9 @@ vector<vector<int>> puzzleSolution
 struct Problem{
     vector<vector<int>> INITIALSTATE
     {
-        {1,3,6},
-        {5,0,7},
-        {4,8,2}
+        {1,2,3},
+        {4,5,6},
+        {0,7,8}
     };
     
 //    void inputProblem(){
@@ -202,34 +205,32 @@ public:
             node *up = new node;
             up->STATE = problem.moveUp(headNode->STATE);
             calculateH(up);
-            cout << "H equals: " << up->h << endl;
             sortedOrder.push_back(up);
         }
         if ( zeroPos.x != 2 ){
             node *down = new node;
             down->STATE = problem.moveDown(headNode->STATE);
             calculateH(down);
-            cout << "H equals: " << down->h << endl;
+            
             sortedOrder.push_back(down);
         }
         if ( zeroPos.y != 0 ){
             node *left = new node;
             left->STATE = problem.moveLeft(headNode->STATE);
             calculateH(left);
-            cout << "H equals: " << left->h << endl;
             sortedOrder.push_back(left);
         }
         if ( zeroPos.y != 2 ){
             node *right = new node;
             right->STATE = problem.moveRight(headNode->STATE);
             calculateH(right);
-            cout << "H equals: " << right->h << endl;
             sortedOrder.push_back(right);
         }
         
-        sort(sortedOrder.begin(), sortedOrder.end());
+        sort(sortedOrder.begin(), sortedOrder.end(), lesser_h());
         
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
+            cout << "H equals: " << sortedOrder.at(i)->h << endl;
             localNodes.push(sortedOrder.at(i));
         }
         
