@@ -42,12 +42,10 @@ struct Problem{
     vector<vector<int>> INITIALSTATE;
     
     bool GOALTEST(vector<vector<int>> puzzle){
-        for (unsigned i = 0; i < puzzle.size(); i++){
-            for (unsigned j = 0; j < puzzle[i].size(); ++j){
-                if ( puzzle[i][j] != puzzleSolution[i][j] ) { return false; }
-            }
+        if ( puzzle == puzzleSolution ){
+            return true;
         }
-        return true;
+        return false;
     }
 };
 
@@ -106,8 +104,20 @@ vector<vector<int>> moveRight(vector<vector<int>> puzzle){
 //Create Heuristics for different Algorithms:
 
 
-node general_search( Problem problem, QUEUEING_FUNCTION q){
-    queue<node> nodes = problem.INITIALSTATE;
+node* general_search( Problem problem, QUEUEING_FUNCTION q){
+    node* root = new node;
+    root->STATE = problem.INITIALSTATE;
+    queue<node*> nodes;
+    nodes.push(root);
+
+    unsigned i = 0;
+    while ( i < 10 ){
+        if ( nodes.empty()) {
+            return new node;
+        }
+        ++i;
+    }
+    return root;
 }
 
 
@@ -124,12 +134,26 @@ int main(int argc, const char * argv[]) {
 //    node *parent = new node;
 //    parent->val = 5;
 //    cout << parent->val << endl;
-    
+    node *parent = new node;
+    parent->STATE =
     {
         {1,2,3},
         {4,5,6},
         {0,7,8}
     };
+    
+    node *test = new node;
+    test->STATE =
+    {
+        {1,2,3},
+        {4,3,6},
+        {0,7,8}
+    };
+    
+
+    if (parent->STATE == test->STATE){
+        cout << "LET'S GOOOOO" << endl;
+    }
     
     //The end goal state we are striving for
     
