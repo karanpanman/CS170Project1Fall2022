@@ -21,6 +21,16 @@ struct Point {
     
 };
 
+struct node {
+    
+    vector<vector<int>> STATE;
+    
+};
+
+struct QUEUEING_FUNCTION {
+    
+};
+
 vector<vector<int>> puzzleSolution
 {
     {1,2,3},
@@ -96,33 +106,36 @@ vector<vector<int>> moveRight(vector<vector<int>> puzzle){
 //Create Heuristics for different Algorithms:
 
 
+node general_search( Problem problem, QUEUEING_FUNCTION q){
+    queue<node> nodes = problem.INITIALSTATE;
+}
 
 
-struct node {
-    
-    int val;
-    
-};
 
 int main(int argc, const char * argv[]) {
     
     //Initialize Our own custom Puzzle as a 3x3 2-D Vector
-    vector<vector<int>> vectPuzzle;
-    vectPuzzle.resize(3);
-    for (unsigned i = 0; i < vectPuzzle.size(); ++i){
-        vectPuzzle[i].resize(3);
-    }
+//    vector<vector<int>> vectPuzzle;
+//    vectPuzzle.resize(3);
+//    for (unsigned i = 0; i < vectPuzzle.size(); ++i){
+//        vectPuzzle[i].resize(3);
+//    }
     
-    node *parent = new node;
-    parent->val = 5;
-    cout << parent->val << endl;
+//    node *parent = new node;
+//    parent->val = 5;
+//    cout << parent->val << endl;
     
+    {
+        {1,2,3},
+        {4,5,6},
+        {0,7,8}
+    };
     
     //The end goal state we are striving for
     
     
-    Point zeroPos;
-    zeroPos = findZeroPos(puzzleSolution);
+//    Point zeroPos;
+//    zeroPos = findZeroPos(puzzleSolution);
     
     //Print Vector Puzzles
 //    printPuzzle(puzzleSolution);
