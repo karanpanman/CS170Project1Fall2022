@@ -244,7 +244,66 @@ public:
             cout << "H equals: " << sortedOrder.at(i)->h << endl;
             localNodes.push(sortedOrder.at(i));
         }
-        cout << endl; 
+        cout << endl;
+
+
+        return localNodes;
+    }
+    
+};
+
+class AstarManhattanDistance: public QUEUEING_FUNCTION {
+public:
+    
+    AstarManhattanDistance ( queue<node*> nodes) : QUEUEING_FUNCTION(nodes){
+        localNodes = nodes;
+    }
+    
+    void calculateH(node* headNode){
+        headNode->h = 0;
+        for (unsigned i = 0; i < headNode->STATE.size(); i++){
+            for (unsigned j = 0; j < headNode->STATE[i].size(); ++j){
+                if ( headNode->STATE[i][j] != puzzleSolution[i][j] ) { ++headNode->h; }
+            }
+        }
+    }
+    
+    queue<node*> EXPAND( node* headNode, Problem problem){
+        Point zeroPos = findZeroPos(headNode->STATE);
+        vector<node*> sortedOrder;
+
+        if ( zeroPos.x != 0 ){
+            node *up = new node;
+            up->STATE = problem.moveUp(headNode->STATE);
+            calculateH(up);
+            sortedOrder.push_back(up);
+        }
+        if ( zeroPos.x != 2 ){
+            node *down = new node;
+            down->STATE = problem.moveDown(headNode->STATE);
+            calculateH(down);
+            sortedOrder.push_back(down);
+        }
+        if ( zeroPos.y != 0 ){
+            node *left = new node;
+            left->STATE = problem.moveLeft(headNode->STATE);
+            calculateH(left);
+            sortedOrder.push_back(left);
+        }
+        if ( zeroPos.y != 2 ){
+            node *right = new node;
+            right->STATE = problem.moveRight(headNode->STATE);
+            calculateH(right);
+            sortedOrder.push_back(right);
+        }
+
+        sort(sortedOrder.begin(), sortedOrder.end(), lesser_h());
+
+        for (unsigned i = 0; i < sortedOrder.size(); ++i){
+            cout << "H equals: " << sortedOrder.at(i)->h << endl;
+            localNodes.push(sortedOrder.at(i));
+        }
+        cout << endl;
 
 
         return localNodes;
