@@ -62,9 +62,9 @@ vector<vector<int>> puzzleSolution
 struct Problem{
     vector<vector<int>> INITIALSTATE
     {
-        {1,2,3},
-        {4,5,6},
-        {0,7,8}
+        {1,3,6},
+        {5,0,2},
+        {4,7,8}
     };
     
 //    void inputProblem(){
@@ -146,35 +146,47 @@ public:
     QUEUEING_FUNCTION( queue<node*> nodes){
         localNodes = nodes;
     }
+    
+    void calculateH(node* headNode){
+        headNode->h = 0;
+    }
         
     queue<node*> EXPAND( node* headNode, Problem problem){
         Point zeroPos = findZeroPos(headNode->STATE);
+        vector<node*> sortedOrder;
         
         if ( zeroPos.x != 0 ){
             node *up = new node;
             up->STATE = problem.moveUp(headNode->STATE);
-            localNodes.push(up);
-            up->h = 0;
-            
+            calculateH(up);
+            sortedOrder.push_back(up);
         }
         if ( zeroPos.x != 2 ){
             node *down = new node;
             down->STATE = problem.moveDown(headNode->STATE);
-            localNodes.push(down);
-            down->h = 0;
+            calculateH(down);
+            sortedOrder.push_back(down);
         }
         if ( zeroPos.y != 0 ){
             node *left = new node;
             left->STATE = problem.moveLeft(headNode->STATE);
-            localNodes.push(left);
-            left->h = 0;
+            calculateH(left);
+            sortedOrder.push_back(left);
         }
         if ( zeroPos.y != 2 ){
             node *right = new node;
             right->STATE = problem.moveRight(headNode->STATE);
-            localNodes.push(right);
-            right->h = 0;
+            calculateH(right);
+            sortedOrder.push_back(right);
         }
+        
+        sort(sortedOrder.begin(), sortedOrder.end(), lesser_h());
+        
+        for (unsigned i = 0; i < sortedOrder.size(); ++i){
+            cout << "H equals: " << sortedOrder.at(i)->h << endl;
+            localNodes.push(sortedOrder.at(i));
+        }
+        
         
         return localNodes;
     }
@@ -200,7 +212,7 @@ public:
     queue<node*> EXPAND( node* headNode, Problem problem){
         Point zeroPos = findZeroPos(headNode->STATE);
         vector<node*> sortedOrder;
-        
+
         if ( zeroPos.x != 0 ){
             node *up = new node;
             up->STATE = problem.moveUp(headNode->STATE);
@@ -211,7 +223,6 @@ public:
             node *down = new node;
             down->STATE = problem.moveDown(headNode->STATE);
             calculateH(down);
-            
             sortedOrder.push_back(down);
         }
         if ( zeroPos.y != 0 ){
@@ -226,15 +237,16 @@ public:
             calculateH(right);
             sortedOrder.push_back(right);
         }
-        
+
         sort(sortedOrder.begin(), sortedOrder.end(), lesser_h());
-        
+
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
             cout << "H equals: " << sortedOrder.at(i)->h << endl;
             localNodes.push(sortedOrder.at(i));
         }
-        
-        
+        cout << endl; 
+
+
         return localNodes;
     }
     
@@ -309,41 +321,6 @@ int main(int argc, const char * argv[]) {
     
     printPuzzle(Test->STATE);
     
-    //The end goal state we are striving for
-    
-    
-//    Point zeroPos;
-//    zeroPos = findZeroPos(puzzleSolution);
-    
-    //Print Vector Puzzles
-//    printPuzzle(puzzleSolution);
-//    cout << endl;
-//    puzzleSolution = moveUp(puzzleSolution);
-//    printPuzzle(puzzleSolution);
-//    cout << endl;
-//    puzzleSolution = moveUp(puzzleSolution);
-//    printPuzzle(puzzleSolution);
-//    cout << endl;
-//
-//    puzzleSolution = moveLeft(puzzleSolution);
-//    printPuzzle(puzzleSolution);
-//    cout << endl;
-//    puzzleSolution = moveLeft(puzzleSolution);
-//    printPuzzle(puzzleSolution);
-//    cout << endl;
-//
-//    puzzleSolution = moveDown(puzzleSolution);
-//    printPuzzle(puzzleSolution);
-//    cout << endl;
-//    puzzleSolution = moveDown(puzzleSolution);
-//    printPuzzle(puzzleSolution);
-//    cout << endl;
-//
-//    puzzleSolution = moveRight(puzzleSolution);
-//    printPuzzle(puzzleSolution);
-//    cout << endl;
-//    puzzleSolution = moveRight(puzzleSolution);
-//    printPuzzle(puzzleSolution);
     cout << endl;
     
     //cout << "X: " << zeroPos.x << " Y:" << zeroPos.y << endl;
