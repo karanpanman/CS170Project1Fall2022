@@ -21,34 +21,6 @@ struct Point {
     
 };
 
-struct node {
-    
-    vector<vector<int>> STATE;
-    
-};
-
-struct QUEUEING_FUNCTION {
-    
-};
-
-vector<vector<int>> puzzleSolution
-{
-    {1,2,3},
-    {4,5,6},
-    {7,8,0}
-};
-
-struct Problem{
-    vector<vector<int>> INITIALSTATE;
-    
-    bool GOALTEST(vector<vector<int>> puzzle){
-        if ( puzzle == puzzleSolution ){
-            return true;
-        }
-        return false;
-    }
-};
-
 Point findZeroPos ( vector<vector<int>> puzzle){
     Point pos;
     for (unsigned i = 0; i < puzzle.size(); i++){
@@ -63,6 +35,83 @@ Point findZeroPos ( vector<vector<int>> puzzle){
     return pos;
 }
 
+struct node {
+    
+    vector<vector<int>> STATE;
+    
+};
+
+
+vector<vector<int>> puzzleSolution
+{
+    {1,2,3},
+    {4,5,6},
+    {7,8,0}
+};
+
+struct Problem{
+    vector<vector<int>> INITIALSTATE
+    {
+        {1,2,3},
+        {4,3,6},
+        {0,7,8}
+    };
+    
+//    void inputProblem(){
+//        vector<vector<int>> finalVec;
+//        int num;
+//        unsigned j;
+//        for (unsigned i = 0; i < 3; ++i){
+//            j = 0;
+//            while ( j < 3 ){
+//                cin >> num;
+//                finalVec[i][j] = num;
+//                ++j;
+//            }
+//            cout << endl;
+//        }
+//        INITIALSTATE = finalVec;
+//    }
+    
+    bool GOALTEST(vector<vector<int>> puzzle){
+        if ( puzzle == puzzleSolution ){
+            return true;
+        }
+        return false;
+    }
+    
+    vector<vector<int>> moveUp(vector<vector<int>> puzzle){
+        Point zero = findZeroPos(puzzle);
+        puzzle[zero.x][zero.y] = puzzle[zero.x-1][zero.y];
+        puzzle[zero.x-1][zero.y] = 0;
+        return puzzle;
+    }
+
+    vector<vector<int>> moveDown(vector<vector<int>> puzzle){
+        Point zero = findZeroPos(puzzle);
+        puzzle[zero.x][zero.y] = puzzle[zero.x+1][zero.y];
+        puzzle[zero.x+1][zero.y] = 0;
+        return puzzle;
+    }
+
+    vector<vector<int>> moveLeft(vector<vector<int>> puzzle){
+        Point zero = findZeroPos(puzzle);
+        puzzle[zero.x][zero.y] = puzzle[zero.x][zero.y-1];
+        puzzle[zero.x][zero.y-1] = 0;
+        return puzzle;
+    }
+
+    vector<vector<int>> moveRight(vector<vector<int>> puzzle){
+        Point zero = findZeroPos(puzzle);
+        puzzle[zero.x][zero.y] = puzzle[zero.x][zero.y+1];
+        puzzle[zero.x][zero.y+1] = 0;
+        return puzzle;
+    }
+    
+};
+
+
+
 void printPuzzle(vector<vector<int>> puzzle){
     for (unsigned i = 0; i < puzzle.size(); i++){
         for (unsigned j = 0; j < puzzle[i].size(); ++j){
@@ -73,49 +122,37 @@ void printPuzzle(vector<vector<int>> puzzle){
 }
 
 //Operators: moveUp, moveDown, moveLeft, moveRight
-vector<vector<int>> moveUp(vector<vector<int>> puzzle){
-    Point zero = findZeroPos(puzzle);
-    puzzle[zero.x][zero.y] = puzzle[zero.x-1][zero.y];
-    puzzle[zero.x-1][zero.y] = 0;
-    return puzzle;
-}
 
-vector<vector<int>> moveDown(vector<vector<int>> puzzle){
-    Point zero = findZeroPos(puzzle);
-    puzzle[zero.x][zero.y] = puzzle[zero.x+1][zero.y];
-    puzzle[zero.x+1][zero.y] = 0;
-    return puzzle;
-}
-
-vector<vector<int>> moveLeft(vector<vector<int>> puzzle){
-    Point zero = findZeroPos(puzzle);
-    puzzle[zero.x][zero.y] = puzzle[zero.x][zero.y-1];
-    puzzle[zero.x][zero.y-1] = 0;
-    return puzzle;
-}
-
-vector<vector<int>> moveRight(vector<vector<int>> puzzle){
-    Point zero = findZeroPos(puzzle);
-    puzzle[zero.x][zero.y] = puzzle[zero.x][zero.y+1];
-    puzzle[zero.x][zero.y+1] = 0;
-    return puzzle;
-}
 
 //Create Heuristics for different Algorithms:
+
+//Treating Base class Queueing Function as Uniform Cost for now since H is hardcoded zero
+class QUEUEING_FUNCTION {
+    
+    public:
+    queue<node*> EXPAND( node* headNode, Problem problem){
+        
+    }
+    
+};
 
 
 node* general_search( Problem problem, QUEUEING_FUNCTION q){
     node* root = new node;
-    root->STATE = problem.INITIALSTATE;
+    //MAKE QUEUE
     queue<node*> nodes;
+    //MAKE-NODE WITH problem.INITIAL-STATE
+    root->STATE = problem.INITIALSTATE;
     nodes.push(root);
 
     unsigned i = 0;
-    while ( i < 10 ){
-        if ( nodes.empty()) {
-            return new node;
+    while ( !nodes.empty() ){
+        node* headNode = nodes.front();
+        nodes.pop();
+        if ( problem.GOALTEST(headNode->STATE) ){
+            return headNode;
         }
-        ++i;
+        
     }
     return root;
 }
@@ -154,6 +191,10 @@ int main(int argc, const char * argv[]) {
     if (parent->STATE == test->STATE){
         cout << "LET'S GOOOOO" << endl;
     }
+    
+    cout << "Hello: Input your numbies below" << endl;
+    Problem check1;
+    printPuzzle(check1.INITIALSTATE);
     
     //The end goal state we are striving for
     
