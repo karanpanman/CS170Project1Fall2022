@@ -22,11 +22,11 @@ struct Point {
     
 };
 
-Point findZeroPos ( vector<vector<int>> puzzle){
+Point findPos ( vector<vector<int>> puzzle, int num){
     Point pos;
     for (unsigned i = 0; i < puzzle.size(); i++){
         for (unsigned j = 0; j < puzzle[i].size(); ++j){
-            if ( puzzle[i][j] == 0 ) {
+            if ( puzzle[i][j] == num ) {
                 pos.x = i;
                 pos.y = j;
                 return pos;
@@ -35,6 +35,8 @@ Point findZeroPos ( vector<vector<int>> puzzle){
     }
     return pos;
 }
+
+
 
 struct node {
     
@@ -59,12 +61,22 @@ vector<vector<int>> puzzleSolution
     {7,8,0}
 };
 
+Point p1;
+Point p2;
+
+Point puzzleSolutionPoints[2]
+{
+    p1, p2
+};
+
+puzzleSolut
+
 struct Problem{
     vector<vector<int>> INITIALSTATE
     {
         {1,3,6},
-        {5,0,2},
-        {4,7,8}
+        {5,0,7},
+        {4,8,2}
     };
     
 //    void inputProblem(){
@@ -90,29 +102,25 @@ struct Problem{
         return false;
     }
     
-    vector<vector<int>> moveUp(vector<vector<int>> puzzle){
-        Point zero = findZeroPos(puzzle);
+    vector<vector<int>> moveUp(vector<vector<int>> puzzle, Point zero){
         puzzle[zero.x][zero.y] = puzzle[zero.x-1][zero.y];
         puzzle[zero.x-1][zero.y] = 0;
         return puzzle;
     }
 
-    vector<vector<int>> moveDown(vector<vector<int>> puzzle){
-        Point zero = findZeroPos(puzzle);
+    vector<vector<int>> moveDown(vector<vector<int>> puzzle, Point zero){
         puzzle[zero.x][zero.y] = puzzle[zero.x+1][zero.y];
         puzzle[zero.x+1][zero.y] = 0;
         return puzzle;
     }
 
-    vector<vector<int>> moveLeft(vector<vector<int>> puzzle){
-        Point zero = findZeroPos(puzzle);
+    vector<vector<int>> moveLeft(vector<vector<int>> puzzle, Point zero){
         puzzle[zero.x][zero.y] = puzzle[zero.x][zero.y-1];
         puzzle[zero.x][zero.y-1] = 0;
         return puzzle;
     }
 
-    vector<vector<int>> moveRight(vector<vector<int>> puzzle){
-        Point zero = findZeroPos(puzzle);
+    vector<vector<int>> moveRight(vector<vector<int>> puzzle, Point zero){
         puzzle[zero.x][zero.y] = puzzle[zero.x][zero.y+1];
         puzzle[zero.x][zero.y+1] = 0;
         return puzzle;
@@ -152,30 +160,30 @@ public:
     }
         
     queue<node*> EXPAND( node* headNode, Problem problem){
-        Point zeroPos = findZeroPos(headNode->STATE);
+        Point zeroPos = findPos(headNode->STATE,0);
         vector<node*> sortedOrder;
         
         if ( zeroPos.x != 0 ){
             node *up = new node;
-            up->STATE = problem.moveUp(headNode->STATE);
+            up->STATE = problem.moveUp(headNode->STATE, zeroPos);
             calculateH(up);
             sortedOrder.push_back(up);
         }
         if ( zeroPos.x != 2 ){
             node *down = new node;
-            down->STATE = problem.moveDown(headNode->STATE);
+            down->STATE = problem.moveDown(headNode->STATE, zeroPos);
             calculateH(down);
             sortedOrder.push_back(down);
         }
         if ( zeroPos.y != 0 ){
             node *left = new node;
-            left->STATE = problem.moveLeft(headNode->STATE);
+            left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
             calculateH(left);
             sortedOrder.push_back(left);
         }
         if ( zeroPos.y != 2 ){
             node *right = new node;
-            right->STATE = problem.moveRight(headNode->STATE);
+            right->STATE = problem.moveRight(headNode->STATE, zeroPos);
             calculateH(right);
             sortedOrder.push_back(right);
         }
@@ -210,30 +218,30 @@ public:
     }
     
     queue<node*> EXPAND( node* headNode, Problem problem){
-        Point zeroPos = findZeroPos(headNode->STATE);
+        Point zeroPos = findPos(headNode->STATE,0);
         vector<node*> sortedOrder;
 
         if ( zeroPos.x != 0 ){
             node *up = new node;
-            up->STATE = problem.moveUp(headNode->STATE);
+            up->STATE = problem.moveUp(headNode->STATE, zeroPos);
             calculateH(up);
             sortedOrder.push_back(up);
         }
         if ( zeroPos.x != 2 ){
             node *down = new node;
-            down->STATE = problem.moveDown(headNode->STATE);
+            down->STATE = problem.moveDown(headNode->STATE, zeroPos);
             calculateH(down);
             sortedOrder.push_back(down);
         }
         if ( zeroPos.y != 0 ){
             node *left = new node;
-            left->STATE = problem.moveLeft(headNode->STATE);
+            left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
             calculateH(left);
             sortedOrder.push_back(left);
         }
         if ( zeroPos.y != 2 ){
             node *right = new node;
-            right->STATE = problem.moveRight(headNode->STATE);
+            right->STATE = problem.moveRight(headNode->STATE, zeroPos);
             calculateH(right);
             sortedOrder.push_back(right);
         }
@@ -252,6 +260,17 @@ public:
     
 };
 
+int calculateDistance (int i, int j, int num ){
+    int sum = 0;
+    Point numberPos = findPos(puzzleSolution, num );
+    int actual_i = numberPos.x;
+    int actual_j = numberPos.y;
+    actual_i = actual_i - i;
+    actual_j = actual_j - j;
+    sum = abs(actual_i + actual_j);
+    return sum;
+}
+
 class AstarManhattanDistance: public QUEUEING_FUNCTION {
 public:
     
@@ -263,36 +282,38 @@ public:
         headNode->h = 0;
         for (unsigned i = 0; i < headNode->STATE.size(); i++){
             for (unsigned j = 0; j < headNode->STATE[i].size(); ++j){
-                if ( headNode->STATE[i][j] != puzzleSolution[i][j] ) { ++headNode->h; }
+                if ( headNode->STATE[i][j] != puzzleSolution[i][j] ) {
+                    headNode->h = headNode->h + calculateDistance(i, j, headNode->STATE[i][j]);
+                }
             }
         }
     }
     
     queue<node*> EXPAND( node* headNode, Problem problem){
-        Point zeroPos = findZeroPos(headNode->STATE);
+        Point zeroPos = findPos(headNode->STATE,0);
         vector<node*> sortedOrder;
 
         if ( zeroPos.x != 0 ){
             node *up = new node;
-            up->STATE = problem.moveUp(headNode->STATE);
+            up->STATE = problem.moveUp(headNode->STATE, zeroPos);
             calculateH(up);
             sortedOrder.push_back(up);
         }
         if ( zeroPos.x != 2 ){
             node *down = new node;
-            down->STATE = problem.moveDown(headNode->STATE);
+            down->STATE = problem.moveDown(headNode->STATE, zeroPos);
             calculateH(down);
             sortedOrder.push_back(down);
         }
         if ( zeroPos.y != 0 ){
             node *left = new node;
-            left->STATE = problem.moveLeft(headNode->STATE);
+            left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
             calculateH(left);
             sortedOrder.push_back(left);
         }
         if ( zeroPos.y != 2 ){
             node *right = new node;
-            right->STATE = problem.moveRight(headNode->STATE);
+            right->STATE = problem.moveRight(headNode->STATE, zeroPos);
             calculateH(right);
             sortedOrder.push_back(right);
         }
@@ -326,7 +347,7 @@ node* general_search( Problem problem){
         if ( problem.GOALTEST(headNode->STATE) ){
             return headNode;
         }
-        AstarMisplacedTile QUEUEINGFUNCTION(nodes);
+        AstarManhattanDistance QUEUEINGFUNCTION(nodes);
         nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
     }
     return root;
