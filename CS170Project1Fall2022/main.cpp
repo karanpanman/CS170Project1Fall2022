@@ -70,9 +70,9 @@ vector<vector<int>> puzzleSolution
 struct Problem{
     vector<vector<int>> INITIALSTATE
     {
-        {7,1,2},
-        {4,8,5},
-        {6,3,0}
+        {1,6,7},
+        {5,0,3},
+        {4,8,2}
     };
     
 //    void inputProblem(){
@@ -170,34 +170,21 @@ public:
     bool checkRepeatedStates ( node* puzzle, vector<node*> totalStatesList ){
         if (!totalStatesList.empty()){
             sort(totalStatesList.begin(), totalStatesList.end(), lesser_h());
-            long mid = 0;
-            long low = 0;
-            long high = totalStatesList.size() - 1;
             
-            while ( low <= high ){
-                mid = low + (high-low)/2;
-                
-                
-                if ( totalStatesList.at(mid)->STATE == puzzle->STATE){
-                    
+            if (puzzle->h < (totalStatesList.at(totalStatesList.size()/2)->h )){
+                for (unsigned i = 0; i <= totalStatesList.size()/2; ++i){
+                    if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
+                        return true;
+                    }
                 }
-                
             }
-            
-//            if (puzzle->h < (totalStatesList.at(totalStatesList.size()/2)->h )){
-//                for (unsigned i = 0; i <= totalStatesList.size()/2; ++i){
-//                    if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
-//                        return true;
-//                    }
-//                }
-//            }
-//            else{
-//                for (unsigned long i = totalStatesList.size()/2 ; i < totalStatesList.size(); ++i){
-//                    if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
-//                        return true;
-//                    }
-//                }
-//            }
+            else{
+                for (unsigned long i = totalStatesList.size()/2 ; i < totalStatesList.size(); ++i){
+                    if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }
@@ -215,38 +202,46 @@ public:
             up->depth = headNode->depth + 1;
             up->STATE = problem.moveUp(headNode->STATE, zeroPos);
             calculateH(up);
-            sortedOrder.push_back(up);
+            if (!checkRepeatedStates(up, statesList)){
+                sortedOrder.push_back(up);
+            }
         }
         if ( zeroPos.x != 2 ){
             node *down = new node;
             down->depth = headNode->depth + 1;
             down->STATE = problem.moveDown(headNode->STATE, zeroPos);
             calculateH(down);
-            sortedOrder.push_back(down);
+            if (!checkRepeatedStates(down, statesList)){
+                sortedOrder.push_back(down);
+            }
         }
         if ( zeroPos.y != 0 ){
             node *left = new node;
             left->depth = headNode->depth + 1;
             left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
             calculateH(left);
-            sortedOrder.push_back(left);
+            if (!checkRepeatedStates(left, statesList)){
+                sortedOrder.push_back(left);
+            }
         }
         if ( zeroPos.y != 2 ){
             node *right = new node;
             right->depth = headNode->depth + 1;
             right->STATE = problem.moveRight(headNode->STATE, zeroPos);
             calculateH(right);
-            sortedOrder.push_back(right);
+            if (!checkRepeatedStates(right, statesList)){
+                sortedOrder.push_back(right);
+            }
         }
         
         sort(sortedOrder.begin(), sortedOrder.end(), lesser_h());
         
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
-            if ( !checkRepeatedStates(sortedOrder.at(i), statesList)){
+            //if ( !checkRepeatedStates(sortedOrder.at(i), statesList)){
                 cout << "H equals: " << sortedOrder.at(i)->h << endl;
                 statesList.push_back(sortedOrder.at(i));
                 localNodes.push(sortedOrder.at(i));
-            }
+            //}
         }
         
         
@@ -357,28 +352,36 @@ public:
             up->depth = headNode->depth + 1;
             up->STATE = problem.moveUp(headNode->STATE, zeroPos);
             calculateH(up);
-            sortedOrder.push_back(up);
+            if (!checkRepeatedStates(up, statesList)){
+                sortedOrder.push_back(up);
+            }
         }
         if ( zeroPos.x != 2 ){
             node *down = new node;
             down->depth = headNode->depth + 1;
             down->STATE = problem.moveDown(headNode->STATE, zeroPos);
             calculateH(down);
-            sortedOrder.push_back(down);
+            if (!checkRepeatedStates(down, statesList)){
+                sortedOrder.push_back(down);
+            }
         }
         if ( zeroPos.y != 0 ){
             node *left = new node;
             left->depth = headNode->depth + 1;
             left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
             calculateH(left);
-            sortedOrder.push_back(left);
+            if (!checkRepeatedStates(left, statesList)){
+                sortedOrder.push_back(left);
+            }
         }
         if ( zeroPos.y != 2 ){
             node *right = new node;
             right->depth = headNode->depth + 1;
             right->STATE = problem.moveRight(headNode->STATE, zeroPos);
             calculateH(right);
-            sortedOrder.push_back(right);
+            if (!checkRepeatedStates(right, statesList)){
+                sortedOrder.push_back(right);
+            }
         }
 
         sort(sortedOrder.begin(), sortedOrder.end(), lesser_h());
