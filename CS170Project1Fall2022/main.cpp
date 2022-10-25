@@ -170,19 +170,20 @@ public:
     bool checkRepeatedStates ( node* puzzle, vector<node*> totalStatesList ){
         if (!totalStatesList.empty()){
             sort(totalStatesList.begin(), totalStatesList.end(), lesser_h());
-        }
-        
-        if (puzzle->h <= (totalStatesList.at(totalStatesList.size()/2)->h )){
-            for (unsigned i = 0; i <= totalStatesList.size()/2; ++i){
-                if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
-                    return true;
+            
+            
+            if (puzzle->h < (totalStatesList.at(totalStatesList.size()/2)->h )){
+                for (unsigned i = 0; i <= totalStatesList.size()/2; ++i){
+                    if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
+                        return true;
+                    }
                 }
             }
-        }
-        else{
-            for (unsigned long i = totalStatesList.size()/2 ; i < totalStatesList.size(); ++i){
-                if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
-                    return true;
+            else{
+                for (unsigned long i = totalStatesList.size()/2 ; i < totalStatesList.size(); ++i){
+                    if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
+                        return true;
+                    }
                 }
             }
         }
