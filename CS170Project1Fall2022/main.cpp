@@ -42,6 +42,7 @@ struct node {
     
     vector<vector<int>> STATE;
     int h;
+    int depth;
     
 };
 
@@ -61,22 +62,17 @@ vector<vector<int>> puzzleSolution
     {7,8,0}
 };
 
-Point p1;
-Point p2;
 
-Point puzzleSolutionPoints[2]
-{
-    p1, p2
-};
 
-puzzleSolut
+
+
 
 struct Problem{
     vector<vector<int>> INITIALSTATE
     {
         {1,3,6},
-        {5,0,7},
-        {4,8,2}
+        {5,0,2},
+        {4,7,8}
     };
     
 //    void inputProblem(){
@@ -139,6 +135,8 @@ void printPuzzle(vector<vector<int>> puzzle){
     }
 }
 
+
+
 //Operators: moveUp, moveDown, moveLeft, moveRight
 
 
@@ -147,12 +145,35 @@ void printPuzzle(vector<vector<int>> puzzle){
 //Treating Base class Queueing Function as Uniform Cost for now since H is hardcoded zero
 class QUEUEING_FUNCTION {
 public:
+    //Point point1;
+    //Point point2;
+
+    Point puzzleSolutionPoints[9];
     queue<node*> localNodes;
+    vector<node*> statesList;
     //come back to this and fix h value
     
     
     QUEUEING_FUNCTION( queue<node*> nodes){
         localNodes = nodes;
+        puzzleSolutionPoints[0].x = 2; puzzleSolutionPoints[0].y = 2;
+        puzzleSolutionPoints[1].x = 0; puzzleSolutionPoints[1].y = 0;
+        puzzleSolutionPoints[2].x = 0; puzzleSolutionPoints[2].y = 1;
+        puzzleSolutionPoints[3].x = 0; puzzleSolutionPoints[3].y = 2;
+        puzzleSolutionPoints[4].x = 1; puzzleSolutionPoints[4].y = 0;
+        puzzleSolutionPoints[5].x = 1; puzzleSolutionPoints[5].y = 1;
+        puzzleSolutionPoints[6].x = 1; puzzleSolutionPoints[6].y = 2;
+        puzzleSolutionPoints[7].x = 2; puzzleSolutionPoints[7].y = 0;
+        puzzleSolutionPoints[8].x = 2; puzzleSolutionPoints[8].y = 1;
+    }
+    
+    bool checkRepeatedStates ( vector<vector<int>> puzzle, vector<node*> totalStatesList ){
+        for (unsigned i = 0; i < totalStatesList.size(); ++i){
+            if ( puzzle == totalStatesList.at(i)->STATE ){
+                return true;
+            }
+        }
+        return false;
     }
     
     void calculateH(node* headNode){
@@ -192,7 +213,10 @@ public:
         
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
             cout << "H equals: " << sortedOrder.at(i)->h << endl;
-            localNodes.push(sortedOrder.at(i));
+            if ( !checkRepeatedStates(sortedOrder.at(i)->STATE, statesList)){
+                statesList.push_back(sortedOrder.at(i));
+                localNodes.push(sortedOrder.at(i));
+            }
         }
         
         
@@ -223,24 +247,28 @@ public:
 
         if ( zeroPos.x != 0 ){
             node *up = new node;
+            up->depth = headNode->depth + 1;
             up->STATE = problem.moveUp(headNode->STATE, zeroPos);
             calculateH(up);
             sortedOrder.push_back(up);
         }
         if ( zeroPos.x != 2 ){
             node *down = new node;
+            down->depth = headNode->depth + 1;
             down->STATE = problem.moveDown(headNode->STATE, zeroPos);
             calculateH(down);
             sortedOrder.push_back(down);
         }
         if ( zeroPos.y != 0 ){
             node *left = new node;
+            left->depth = headNode->depth + 1;
             left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
             calculateH(left);
             sortedOrder.push_back(left);
         }
         if ( zeroPos.y != 2 ){
             node *right = new node;
+            right->depth = headNode->depth + 1;
             right->STATE = problem.moveRight(headNode->STATE, zeroPos);
             calculateH(right);
             sortedOrder.push_back(right);
@@ -250,7 +278,10 @@ public:
 
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
             cout << "H equals: " << sortedOrder.at(i)->h << endl;
-            localNodes.push(sortedOrder.at(i));
+            if ( !checkRepeatedStates(sortedOrder.at(i)->STATE, statesList)){
+                statesList.push_back(sortedOrder.at(i));
+                localNodes.push(sortedOrder.at(i));
+            }
         }
         cout << endl;
 
@@ -260,13 +291,11 @@ public:
     
 };
 
-int calculateDistance (int i, int j, int num ){
+int calculateDistance (int i, int j, int num, Point solution[]){
     int sum = 0;
-    Point numberPos = findPos(puzzleSolution, num );
-    int actual_i = numberPos.x;
-    int actual_j = numberPos.y;
-    actual_i = actual_i - i;
-    actual_j = actual_j - j;
+    
+    int actual_i = solution[num].x - i;
+    int actual_j = solution[num].y - j;
     sum = abs(actual_i + actual_j);
     return sum;
 }
@@ -283,7 +312,7 @@ public:
         for (unsigned i = 0; i < headNode->STATE.size(); i++){
             for (unsigned j = 0; j < headNode->STATE[i].size(); ++j){
                 if ( headNode->STATE[i][j] != puzzleSolution[i][j] ) {
-                    headNode->h = headNode->h + calculateDistance(i, j, headNode->STATE[i][j]);
+                    headNode->h = headNode->h + calculateDistance(i, j, headNode->STATE[i][j], puzzleSolutionPoints);
                 }
             }
         }
@@ -322,7 +351,10 @@ public:
 
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
             cout << "H equals: " << sortedOrder.at(i)->h << endl;
-            localNodes.push(sortedOrder.at(i));
+            if ( !checkRepeatedStates(sortedOrder.at(i)->STATE, statesList)){
+                statesList.push_back(sortedOrder.at(i));
+                localNodes.push(sortedOrder.at(i));
+            }
         }
         cout << endl;
 
@@ -339,15 +371,16 @@ node* general_search( Problem problem){
     queue<node*> nodes;
     //MAKE-NODE WITH problem.INITIAL-STATE
     root->STATE = problem.INITIALSTATE;
+    root->depth = 0;
     nodes.push(root);
-
     while ( !nodes.empty() ){
         node* headNode = nodes.front();
         nodes.pop();
         if ( problem.GOALTEST(headNode->STATE) ){
+            cout << "Depth: " << headNode->depth << endl;
             return headNode;
         }
-        AstarManhattanDistance QUEUEINGFUNCTION(nodes);
+        AstarMisplacedTile QUEUEINGFUNCTION(nodes);
         nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
     }
     return root;
