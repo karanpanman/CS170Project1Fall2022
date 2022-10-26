@@ -43,6 +43,7 @@ struct node {
     vector<vector<int>> STATE;
     int h;
     int depth;
+    Point zeroPoint;
     
 };
 
@@ -74,6 +75,8 @@ struct Problem{
         {5,0,3},
         {4,8,2}
     };
+    
+    Point zeroOriginalPosition = findPos(INITIALSTATE, 0);
     
 //    void inputProblem(){
 //        vector<vector<int>> finalVec;
@@ -150,6 +153,7 @@ public:
 
     Point puzzleSolutionPoints[9];
     queue<node*> localNodes;
+    vector<node*> sortedOrder;
     
     //come back to this and fix h value
     
@@ -176,12 +180,18 @@ public:
                     if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
                         return true;
                     }
+                    if ( puzzle->h < totalStatesList.at(i)->h ){
+                        return false;
+                    }
                 }
             }
             else{
                 for (unsigned long i = totalStatesList.size()/2 ; i < totalStatesList.size(); ++i){
                     if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
                         return true;
+                    }
+                    if ( puzzle->h < totalStatesList.at(i)->h ){
+                        return false;
                     }
                 }
             }
@@ -267,12 +277,13 @@ public:
     }
     
     queue<node*> EXPAND( node* headNode, Problem problem){
-        Point zeroPos = findPos(headNode->STATE,0);
-        vector<node*> sortedOrder;
-
+        Point zeroPos = headNode->zeroPoint;
+        //findPos(headNode->STATE,0);
         if ( zeroPos.x != 0 ){
             node *up = new node;
             up->depth = headNode->depth + 1;
+            up->zeroPoint.x = zeroPos.x - 1;
+            up->zeroPoint.y = zeroPos.y;
             up->STATE = problem.moveUp(headNode->STATE, zeroPos);
             calculateH(up);
             sortedOrder.push_back(up);
@@ -280,6 +291,8 @@ public:
         if ( zeroPos.x != 2 ){
             node *down = new node;
             down->depth = headNode->depth + 1;
+            down->zeroPoint.x = zeroPos.x + 1;
+            down->zeroPoint.y = zeroPos.y;
             down->STATE = problem.moveDown(headNode->STATE, zeroPos);
             calculateH(down);
             sortedOrder.push_back(down);
@@ -287,6 +300,8 @@ public:
         if ( zeroPos.y != 0 ){
             node *left = new node;
             left->depth = headNode->depth + 1;
+            left->zeroPoint.x = zeroPos.x;
+            left->zeroPoint.y = zeroPos.y - 1;
             left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
             calculateH(left);
             sortedOrder.push_back(left);
@@ -294,6 +309,8 @@ public:
         if ( zeroPos.y != 2 ){
             node *right = new node;
             right->depth = headNode->depth + 1;
+            right->zeroPoint.x = zeroPos.x;
+            right->zeroPoint.y = zeroPos.y + 1;
             right->STATE = problem.moveRight(headNode->STATE, zeroPos);
             calculateH(right);
             sortedOrder.push_back(right);
@@ -321,7 +338,10 @@ int calculateDistance (int i, int j, int num, Point solution[]){
     
     int actual_i = solution[num].x - i;
     int actual_j = solution[num].y - j;
-    sum = abs(actual_i + actual_j);
+    //cout << "Actual_i val: " << actual_i << endl;
+    //cout << "Actual_j val: " << actual_j << endl;
+    sum = abs(actual_i )+ abs(actual_j);
+    cout << "Sum: " << sum << endl;
     return sum;
 }
 
@@ -332,24 +352,33 @@ public:
         localNodes = nodes;
     }
     
+    //Calculate manhattan distance
     void calculateH(node* headNode){
         headNode->h = 0;
+        printPuzzle(headNode->STATE);
+        cout << endl;
         for (unsigned i = 0; i < headNode->STATE.size(); i++){
             for (unsigned j = 0; j < headNode->STATE[i].size(); ++j){
                 if ( headNode->STATE[i][j] != puzzleSolution[i][j] ) {
+                    //cout << "Number currently: " << headNode->STATE[i][j] << " Actual number: " << puzzleSolution[i][j] << endl;
                     headNode->h = headNode->h + calculateDistance(i, j, headNode->STATE[i][j], puzzleSolutionPoints);
+                    cout << "H is currently: " << headNode->h << endl;;
                 }
             }
         }
+        cout << "Final H: " << headNode->h << endl;
     }
     
     queue<node*> EXPAND( node* headNode, Problem problem){
-        Point zeroPos = findPos(headNode->STATE,0);
-        vector<node*> sortedOrder;
+        Point zeroPos = headNode->zeroPoint;
+        //findPos(headNode->STATE,0);
+        
 
         if ( zeroPos.x != 0 ){
             node *up = new node;
             up->depth = headNode->depth + 1;
+            up->zeroPoint.x = zeroPos.x - 1;
+            up->zeroPoint.y = zeroPos.y;
             up->STATE = problem.moveUp(headNode->STATE, zeroPos);
             calculateH(up);
             if (!checkRepeatedStates(up, statesList)){
@@ -359,6 +388,8 @@ public:
         if ( zeroPos.x != 2 ){
             node *down = new node;
             down->depth = headNode->depth + 1;
+            down->zeroPoint.x = zeroPos.x + 1;
+            down->zeroPoint.y = zeroPos.y;
             down->STATE = problem.moveDown(headNode->STATE, zeroPos);
             calculateH(down);
             if (!checkRepeatedStates(down, statesList)){
@@ -368,6 +399,8 @@ public:
         if ( zeroPos.y != 0 ){
             node *left = new node;
             left->depth = headNode->depth + 1;
+            left->zeroPoint.x = zeroPos.x;
+            left->zeroPoint.y = zeroPos.y - 1;
             left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
             calculateH(left);
             if (!checkRepeatedStates(left, statesList)){
@@ -377,6 +410,8 @@ public:
         if ( zeroPos.y != 2 ){
             node *right = new node;
             right->depth = headNode->depth + 1;
+            right->zeroPoint.x = zeroPos.x;
+            right->zeroPoint.y = zeroPos.y + 1;
             right->STATE = problem.moveRight(headNode->STATE, zeroPos);
             calculateH(right);
             if (!checkRepeatedStates(right, statesList)){
@@ -390,6 +425,7 @@ public:
             
             if ( !checkRepeatedStates(sortedOrder.at(i), statesList)){
                 cout << "H equals: " << sortedOrder.at(i)->h << endl;
+                printPuzzle(sortedOrder.at(i)->STATE);
                 statesList.push_back(sortedOrder.at(i));
                 localNodes.push(sortedOrder.at(i));
             }
@@ -410,7 +446,9 @@ node* general_search( Problem problem){
     //MAKE-NODE WITH problem.INITIAL-STATE
     root->STATE = problem.INITIALSTATE;
     root->depth = 0;
+    root->zeroPoint = problem.zeroOriginalPosition;
     nodes.push(root);
+    AstarManhattanDistance QUEUEINGFUNCTION(nodes);
     while ( !nodes.empty() ){
         node* headNode = nodes.front();
         nodes.pop();
@@ -418,7 +456,7 @@ node* general_search( Problem problem){
             cout << "Depth: " << headNode->depth << endl;
             return headNode;
         }
-        AstarManhattanDistance QUEUEINGFUNCTION(nodes);
+        
         nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
     }
     return root;
