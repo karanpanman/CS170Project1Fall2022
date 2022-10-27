@@ -71,9 +71,9 @@ vector<vector<int>> puzzleSolution
 struct Problem{
     vector<vector<int>> INITIALSTATE
     {
-        {1,6,7},
-        {5,0,3},
-        {4,8,2}
+        {4,1,2},
+        {5,3,0},
+        {7,8,6}
     };
     
     Point zeroOriginalPosition = findPos(INITIALSTATE, 0);
@@ -172,6 +172,7 @@ public:
     }
     
     bool checkRepeatedStates ( node* puzzle, vector<node*> totalStatesList ){
+       
         if (!totalStatesList.empty()){
             sort(totalStatesList.begin(), totalStatesList.end(), lesser_h());
             
@@ -341,7 +342,7 @@ int calculateDistance (int i, int j, int num, Point solution[]){
     //cout << "Actual_i val: " << actual_i << endl;
     //cout << "Actual_j val: " << actual_j << endl;
     sum = abs(actual_i )+ abs(actual_j);
-    cout << "Sum: " << sum << endl;
+   // cout << "Sum: " << sum << endl;
     return sum;
 }
 
@@ -355,24 +356,27 @@ public:
     //Calculate manhattan distance
     void calculateH(node* headNode){
         headNode->h = 0;
-        printPuzzle(headNode->STATE);
+        //printPuzzle(headNode->STATE);
         cout << endl;
         for (unsigned i = 0; i < headNode->STATE.size(); i++){
             for (unsigned j = 0; j < headNode->STATE[i].size(); ++j){
-                if ( headNode->STATE[i][j] != puzzleSolution[i][j] ) {
+                if ( headNode->STATE[i][j] != 0 && headNode->STATE[i][j] != puzzleSolution[i][j] ) {
                     //cout << "Number currently: " << headNode->STATE[i][j] << " Actual number: " << puzzleSolution[i][j] << endl;
                     headNode->h = headNode->h + calculateDistance(i, j, headNode->STATE[i][j], puzzleSolutionPoints);
-                    cout << "H is currently: " << headNode->h << endl;;
+                 //   cout << "H is currently: " << headNode->h << endl;;
                 }
             }
         }
-        cout << "Final H: " << headNode->h << endl;
+        //cout << "Final H: " << headNode->h << endl;
     }
     
     queue<node*> EXPAND( node* headNode, Problem problem){
         Point zeroPos = headNode->zeroPoint;
         //findPos(headNode->STATE,0);
-        
+        if (sortedOrder.empty()){
+            calculateH(headNode);
+            statesList.push_back(headNode);
+        }
 
         if ( zeroPos.x != 0 ){
             node *up = new node;
@@ -382,6 +386,8 @@ public:
             up->STATE = problem.moveUp(headNode->STATE, zeroPos);
             calculateH(up);
             if (!checkRepeatedStates(up, statesList)){
+                cout << "Up State: " << endl;
+                printPuzzle(up->STATE);
                 sortedOrder.push_back(up);
             }
         }
@@ -393,6 +399,8 @@ public:
             down->STATE = problem.moveDown(headNode->STATE, zeroPos);
             calculateH(down);
             if (!checkRepeatedStates(down, statesList)){
+                cout << "Down State: " << endl;
+                printPuzzle(down->STATE);
                 sortedOrder.push_back(down);
             }
         }
@@ -404,6 +412,8 @@ public:
             left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
             calculateH(left);
             if (!checkRepeatedStates(left, statesList)){
+                cout << "Left State: " << endl;
+                printPuzzle(left->STATE);
                 sortedOrder.push_back(left);
             }
         }
@@ -415,17 +425,27 @@ public:
             right->STATE = problem.moveRight(headNode->STATE, zeroPos);
             calculateH(right);
             if (!checkRepeatedStates(right, statesList)){
+                cout << "Right State: " << endl;
+                printPuzzle(right->STATE);
                 sortedOrder.push_back(right);
             }
         }
 
         sort(sortedOrder.begin(), sortedOrder.end(), lesser_h());
+        
+        if ( sortedOrder.size() > 1 ){
+            for (unsigned i = 0; i < sortedOrder.size() - 1; ++i){
+                if (sortedOrder.at(i)->h == sortedOrder.at(i+1)->h ){
+                    //checkChildren(sortedOrder, problem);
+                    cout << "OK WE WORKING" << endl;
+                }
+            }
+        }
 
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
-            
             if ( !checkRepeatedStates(sortedOrder.at(i), statesList)){
                 cout << "H equals: " << sortedOrder.at(i)->h << endl;
-                printPuzzle(sortedOrder.at(i)->STATE);
+                //printPuzzle(sortedOrder.at(i)->STATE);
                 statesList.push_back(sortedOrder.at(i));
                 localNodes.push(sortedOrder.at(i));
             }
@@ -435,6 +455,20 @@ public:
 
         return localNodes;
     }
+    
+    int checkChildren(vector<node*> sortedOrder, Problem problem){
+        bool done = 0;
+        while ( !done ){
+            queue<node*> check1 = EXPAND(sortedOrder.at(0), problem);
+            queue<node*> check2 = EXPAND(sortedOrder.at(1), problem);
+            if (check1.front()->h != check2.front()->h) {
+                
+            }
+            
+        }
+        return 1;
+    }
+    
     
 };
 
@@ -448,7 +482,7 @@ node* general_search( Problem problem){
     root->depth = 0;
     root->zeroPoint = problem.zeroOriginalPosition;
     nodes.push(root);
-    AstarManhattanDistance QUEUEINGFUNCTION(nodes);
+    
     while ( !nodes.empty() ){
         node* headNode = nodes.front();
         nodes.pop();
@@ -457,6 +491,7 @@ node* general_search( Problem problem){
             return headNode;
         }
         
+        AstarManhattanDistance QUEUEINGFUNCTION(nodes);
         nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
     }
     return root;
