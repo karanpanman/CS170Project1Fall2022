@@ -44,6 +44,7 @@ struct node {
     int h;
     int depth;
     Point zeroPoint;
+    int priority = 0;
     
 };
 
@@ -51,6 +52,13 @@ struct node {
 struct lesser_h{
     inline bool operator() (const node* n1, const node* n2){
         return (n1->h < n2->h);
+    }
+};
+
+//Helps me with sorting children when two or more children have equal h values
+struct higher_prio{
+    inline bool operator() (const node* n1, const node* n2){
+        return (n1->priority > n2->priority);
     }
 };
 
@@ -211,36 +219,52 @@ public:
         if ( zeroPos.x != 0 ){
             node *up = new node;
             up->depth = headNode->depth + 1;
+            up->zeroPoint.x = zeroPos.x - 1;
+            up->zeroPoint.y = zeroPos.y;
             up->STATE = problem.moveUp(headNode->STATE, zeroPos);
             calculateH(up);
             if (!checkRepeatedStates(up, statesList)){
+                cout << "Up State: " << endl;
+                printPuzzle(up->STATE);
                 sortedOrder.push_back(up);
             }
         }
         if ( zeroPos.x != 2 ){
             node *down = new node;
             down->depth = headNode->depth + 1;
+            down->zeroPoint.x = zeroPos.x + 1;
+            down->zeroPoint.y = zeroPos.y;
             down->STATE = problem.moveDown(headNode->STATE, zeroPos);
             calculateH(down);
             if (!checkRepeatedStates(down, statesList)){
+                cout << "Down State: " << endl;
+                printPuzzle(down->STATE);
                 sortedOrder.push_back(down);
             }
         }
         if ( zeroPos.y != 0 ){
             node *left = new node;
             left->depth = headNode->depth + 1;
+            left->zeroPoint.x = zeroPos.x;
+            left->zeroPoint.y = zeroPos.y - 1;
             left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
             calculateH(left);
             if (!checkRepeatedStates(left, statesList)){
+                cout << "Left State: " << endl;
+                printPuzzle(left->STATE);
                 sortedOrder.push_back(left);
             }
         }
         if ( zeroPos.y != 2 ){
             node *right = new node;
             right->depth = headNode->depth + 1;
+            right->zeroPoint.x = zeroPos.x;
+            right->zeroPoint.y = zeroPos.y + 1;
             right->STATE = problem.moveRight(headNode->STATE, zeroPos);
             calculateH(right);
             if (!checkRepeatedStates(right, statesList)){
+                cout << "Right State: " << endl;
+                printPuzzle(right->STATE);
                 sortedOrder.push_back(right);
             }
         }
@@ -258,6 +282,8 @@ public:
         
         return localNodes;
     }
+    
+    
     
 };
 
@@ -373,74 +399,25 @@ public:
     queue<node*> EXPAND( node* headNode, Problem problem){
         Point zeroPos = headNode->zeroPoint;
         //findPos(headNode->STATE,0);
-        if (sortedOrder.empty()){
+        if (statesList.empty()){
             calculateH(headNode);
             statesList.push_back(headNode);
         }
-
-        if ( zeroPos.x != 0 ){
-            node *up = new node;
-            up->depth = headNode->depth + 1;
-            up->zeroPoint.x = zeroPos.x - 1;
-            up->zeroPoint.y = zeroPos.y;
-            up->STATE = problem.moveUp(headNode->STATE, zeroPos);
-            calculateH(up);
-            if (!checkRepeatedStates(up, statesList)){
-                cout << "Up State: " << endl;
-                printPuzzle(up->STATE);
-                sortedOrder.push_back(up);
-            }
-        }
-        if ( zeroPos.x != 2 ){
-            node *down = new node;
-            down->depth = headNode->depth + 1;
-            down->zeroPoint.x = zeroPos.x + 1;
-            down->zeroPoint.y = zeroPos.y;
-            down->STATE = problem.moveDown(headNode->STATE, zeroPos);
-            calculateH(down);
-            if (!checkRepeatedStates(down, statesList)){
-                cout << "Down State: " << endl;
-                printPuzzle(down->STATE);
-                sortedOrder.push_back(down);
-            }
-        }
-        if ( zeroPos.y != 0 ){
-            node *left = new node;
-            left->depth = headNode->depth + 1;
-            left->zeroPoint.x = zeroPos.x;
-            left->zeroPoint.y = zeroPos.y - 1;
-            left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
-            calculateH(left);
-            if (!checkRepeatedStates(left, statesList)){
-                cout << "Left State: " << endl;
-                printPuzzle(left->STATE);
-                sortedOrder.push_back(left);
-            }
-        }
-        if ( zeroPos.y != 2 ){
-            node *right = new node;
-            right->depth = headNode->depth + 1;
-            right->zeroPoint.x = zeroPos.x;
-            right->zeroPoint.y = zeroPos.y + 1;
-            right->STATE = problem.moveRight(headNode->STATE, zeroPos);
-            calculateH(right);
-            if (!checkRepeatedStates(right, statesList)){
-                cout << "Right State: " << endl;
-                printPuzzle(right->STATE);
-                sortedOrder.push_back(right);
-            }
-        }
+        
+        sortedOrder = makeChildren(headNode, problem);
 
         sort(sortedOrder.begin(), sortedOrder.end(), lesser_h());
         
-        if ( sortedOrder.size() > 1 ){
-            for (unsigned i = 0; i < sortedOrder.size() - 1; ++i){
-                if (sortedOrder.at(i)->h == sortedOrder.at(i+1)->h ){
-                    //checkChildren(sortedOrder, problem);
-                    cout << "OK WE WORKING" << endl;
-                }
-            }
-        }
+//        if ( sortedOrder.size() > 1 ){
+//            for (unsigned i = 0; i < sortedOrder.size() - 1; ++i){
+//                if (sortedOrder.at(i)->h == sortedOrder.at(i+1)->h ){
+//                    checkChildren(sortedOrder, problem);
+//                    sort(sortedOrder.begin(), sortedOrder.end(), higher_prio());
+//                }
+//            }
+//        }
+        
+        
 
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
             if ( !checkRepeatedStates(sortedOrder.at(i), statesList)){
@@ -456,18 +433,84 @@ public:
         return localNodes;
     }
     
-    int checkChildren(vector<node*> sortedOrder, Problem problem){
-        bool done = 0;
-        while ( !done ){
-            queue<node*> check1 = EXPAND(sortedOrder.at(0), problem);
-            queue<node*> check2 = EXPAND(sortedOrder.at(1), problem);
-            if (check1.front()->h != check2.front()->h) {
-                
+    vector<node*> makeChildren ( node* headNode, Problem problem){
+        
+        vector<node*>sorted;
+        
+        Point zeroPos = headNode->zeroPoint;
+        
+        if ( zeroPos.x != 0 ){
+            node *up = new node;
+            up->depth = headNode->depth + 1;
+            up->zeroPoint.x = zeroPos.x - 1;
+            up->zeroPoint.y = zeroPos.y;
+            up->STATE = problem.moveUp(headNode->STATE, zeroPos);
+            calculateH(up);
+            if (!checkRepeatedStates(up, statesList)){
+                cout << "Up State: " << endl;
+                printPuzzle(up->STATE);
+                sorted.push_back(up);
             }
-            
         }
-        return 1;
+        if ( zeroPos.x != 2 ){
+            node *down = new node;
+            down->depth = headNode->depth + 1;
+            down->zeroPoint.x = zeroPos.x + 1;
+            down->zeroPoint.y = zeroPos.y;
+            down->STATE = problem.moveDown(headNode->STATE, zeroPos);
+            calculateH(down);
+            if (!checkRepeatedStates(down, statesList)){
+                cout << "Down State: " << endl;
+                printPuzzle(down->STATE);
+                sorted.push_back(down);
+            }
+        }
+        if ( zeroPos.y != 0 ){
+            node *left = new node;
+            left->depth = headNode->depth + 1;
+            left->zeroPoint.x = zeroPos.x;
+            left->zeroPoint.y = zeroPos.y - 1;
+            left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
+            calculateH(left);
+            if (!checkRepeatedStates(left, statesList)){
+                cout << "Left State: " << endl;
+                printPuzzle(left->STATE);
+                sorted.push_back(left);
+            }
+        }
+        if ( zeroPos.y != 2 ){
+            node *right = new node;
+            right->depth = headNode->depth + 1;
+            right->zeroPoint.x = zeroPos.x;
+            right->zeroPoint.y = zeroPos.y + 1;
+            right->STATE = problem.moveRight(headNode->STATE, zeroPos);
+            calculateH(right);
+            if (!checkRepeatedStates(right, statesList)){
+                cout << "Right State: " << endl;
+                printPuzzle(right->STATE);
+                sorted.push_back(right);
+            }
+        }
+        
+        return sorted;
+        
     }
+    
+    void checkChildren(vector<node*> sortedOrder, Problem problem){
+        for (unsigned i = 0; i < sortedOrder.size() - 1; ++i){
+            queue<node*> check1 = EXPAND(sortedOrder.at(i), problem);
+            queue<node*> check2 = EXPAND(sortedOrder.at(i+1), problem);
+            if (check2.front()->h != check1.front()->h) {
+                if ( check2.front()->h < check2.front()->h){
+                    sortedOrder.at(i+1)->priority = sortedOrder.at(i+1)->priority + 1;
+                }
+                else{
+                    sortedOrder.at(i)->priority = sortedOrder.at(i)->priority + 1;
+                }
+            }
+        }
+    }
+           
     
     
 };
