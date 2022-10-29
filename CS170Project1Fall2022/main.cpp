@@ -68,6 +68,13 @@ vector<vector<int>> puzzleSolution
     {7,8,0}
 };
 
+int calculateDistance (int i, int j, int num, Point solution[]){
+    int sum = 0;
+    int actual_i = solution[num].x - i;
+    int actual_j = solution[num].y - j;
+    sum = abs(actual_i )+ abs(actual_j);
+    return sum;
+}
 
 
 
@@ -357,69 +364,52 @@ public:
     }
     
     queue<node*> EXPAND( node* headNode, Problem problem){
-        Point zeroPos = headNode->zeroPoint;
-        //findPos(headNode->STATE,0);
-        if ( zeroPos.x != 0 ){
-            node *up = new node;
-            //up->depth = headNode->depth + 1;
-            up->zeroPoint.x = zeroPos.x - 1;
-            up->zeroPoint.y = zeroPos.y;
-            up->STATE = problem.moveUp(headNode->STATE, zeroPos);
-            calculateH(up);
-            sortedOrder.push_back(up);
+        //This places the Initial Problem state into our repeated states list
+        if (statesList.empty()){
+            calculateH(headNode);
+            headNode->f = headNode->h + headNode->depth;
+            statesList.push_back(headNode);
         }
-        if ( zeroPos.x != 2 ){
-            node *down = new node;
-            //down->depth = headNode->depth + 1;
-            down->zeroPoint.x = zeroPos.x + 1;
-            down->zeroPoint.y = zeroPos.y;
-            down->STATE = problem.moveDown(headNode->STATE, zeroPos);
-            calculateH(down);
-            sortedOrder.push_back(down);
+        
+        //Make our children and store them in the sorted order vector
+        sortedOrder = makeChildren(headNode, problem);
+        
+        for ( unsigned i = 0; i < sortedOrder.size(); ++i ){
+            calculateH(sortedOrder.at(i));
+            sortedOrder.at(i)->f = sortedOrder.at(i)->h + sortedOrder.at(i)->depth;
         }
-        if ( zeroPos.y != 0 ){
-            node *left = new node;
-            //left->depth = headNode->depth + 1;
-            left->zeroPoint.x = zeroPos.x;
-            left->zeroPoint.y = zeroPos.y - 1;
-            left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
-            calculateH(left);
-            sortedOrder.push_back(left);
-        }
-        if ( zeroPos.y != 2 ){
-            node *right = new node;
-            //right->depth = headNode->depth + 1;
-            right->zeroPoint.x = zeroPos.x;
-            right->zeroPoint.y = zeroPos.y + 1;
-            right->STATE = problem.moveRight(headNode->STATE, zeroPos);
-            calculateH(right);
-            sortedOrder.push_back(right);
-        }
-
+        
         sort(sortedOrder.begin(), sortedOrder.end(), lesser_f());
-
+        vector<node*> finalVals;
+        //While we check if any of the children have been repeated, we want to put all the new ones in our Final Values vector
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
             if ( !checkRepeatedStates(sortedOrder.at(i), statesList)){
-                cout << "H equals: " << sortedOrder.at(i)->h << endl;
                 statesList.push_back(sortedOrder.at(i));
-                localNodes.push(sortedOrder.at(i));
+                finalVals.push_back(sortedOrder.at(i));
             }
         }
-        cout << endl;
-
-
+        
+        //Final values now takes in the prior nodes in our original nodes queue and will then sort the new children with old parents
+        while (!localNodes.empty()){
+            node* front = new node;
+            front = localNodes.front();
+            finalVals.push_back(front);
+            localNodes.pop();
+        }
+        
+        //Place all the sorted by f(n) nodes from final values vector back into our nodes queue
+        sort(finalVals.begin(), finalVals.end(), lesser_f());
+        for (unsigned i = 0; i < finalVals.size(); ++i){
+            localNodes.push(finalVals.at(i));
+        }
+        
+        
         return localNodes;
     }
     
 };
 
-int calculateDistance (int i, int j, int num, Point solution[]){
-    int sum = 0;
-    int actual_i = solution[num].x - i;
-    int actual_j = solution[num].y - j;
-    sum = abs(actual_i )+ abs(actual_j);
-    return sum;
-}
+
 
 class AstarManhattanDistance: public QUEUEING_FUNCTION {
 public:
