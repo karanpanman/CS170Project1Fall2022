@@ -232,6 +232,7 @@ public:
         return localNodes;
     }
     
+    //Crucial to expand function
     vector<node*> makeChildren ( node* headNode, Problem problem){
         
         vector<node*>sorted;
@@ -241,60 +242,42 @@ public:
         
         if ( zeroPos.x != 0 ){
             node *up = new node;
-            //headNode->up = up;
             up->depth = depth;
             up->zeroPoint.x = zeroPos.x - 1;
             up->zeroPoint.y = zeroPos.y;
             up->STATE = problem.moveUp(headNode->STATE, zeroPos);
             
             if (!checkRepeatedStates(up, statesList)){
-                //cout << "Up State: " << endl;
-                //printPuzzle(up->STATE);
                 sorted.push_back(up);
             }
         }
         if ( zeroPos.x != 2 ){
             node *down = new node;
-            //headNode->down = down;
             down->depth = depth;
             down->zeroPoint.x = zeroPos.x + 1;
             down->zeroPoint.y = zeroPos.y;
             down->STATE = problem.moveDown(headNode->STATE, zeroPos);
-            //calculateH(down);
-            //down->f = down->h + down->depth;
             if (!checkRepeatedStates(down, statesList)){
-                //cout << "Down State: " << endl;
-                //printPuzzle(down->STATE);
                 sorted.push_back(down);
             }
         }
         if ( zeroPos.y != 0 ){
             node *left = new node;
-            //headNode->left = left;
             left->depth = depth;
             left->zeroPoint.x = zeroPos.x;
             left->zeroPoint.y = zeroPos.y - 1;
             left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
-            //calculateH(left);
-            //left->f = left->h + left->depth;
             if (!checkRepeatedStates(left, statesList)){
-                //cout << "Left State: " << endl;
-                //printPuzzle(left->STATE);
                 sorted.push_back(left);
             }
         }
         if ( zeroPos.y != 2 ){
             node *right = new node;
-            //headNode->right = right;
             right->depth = depth;
             right->zeroPoint.x = zeroPos.x;
             right->zeroPoint.y = zeroPos.y + 1;
             right->STATE = problem.moveRight(headNode->STATE, zeroPos);
-            //calculateH(right);
-            //right->f = right->h + right->depth;
             if (!checkRepeatedStates(right, statesList)){
-                //cout << "Right State: " << endl;
-                //printPuzzle(right->STATE);
                 sorted.push_back(right);
             }
         }
