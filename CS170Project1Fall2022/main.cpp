@@ -76,9 +76,9 @@ vector<vector<int>> puzzleSolution
 struct Problem{
     vector<vector<int>> INITIALSTATE
     {
-        {4,1,2},
-        {5,3,0},
-        {7,8,6}
+        {0,7,2},
+        {4,6,1},
+        {3,5,8}
     };
     
     Point zeroOriginalPosition = findPos(INITIALSTATE, 0);
@@ -431,18 +431,13 @@ public:
     //Calculate manhattan distance
     void calculateH(node* headNode){
         headNode->h = 0;
-        //printPuzzle(headNode->STATE);
         cout << endl;
         for (unsigned i = 0; i < headNode->STATE.size(); i++){
             for (unsigned j = 0; j < headNode->STATE[i].size(); ++j){
-                if ( headNode->STATE[i][j] != 0 && headNode->STATE[i][j] != puzzleSolution[i][j] ) {
-                    //cout << "Number currently: " << headNode->STATE[i][j] << " Actual number: " << puzzleSolution[i][j] << endl;
-                    headNode->h = headNode->h + calculateDistance(i, j, headNode->STATE[i][j], puzzleSolutionPoints);
-                 //   cout << "H is currently: " << headNode->h << endl;;
+                if ( headNode->STATE[i][j] != 0 && headNode->STATE[i][j] != puzzleSolution[i][j] ) {                    headNode->h = headNode->h + calculateDistance(i, j, headNode->STATE[i][j], puzzleSolutionPoints);
                 }
             }
         }
-        //cout << "Final H: " << headNode->h << endl;
     }
     
     queue<node*> EXPAND( node* headNode, Problem problem){
@@ -466,8 +461,6 @@ public:
         //While we check if any of the children have been repeated, we want to put all the new ones in our Final Values vector
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
             if ( !checkRepeatedStates(sortedOrder.at(i), statesList)){
-                //cout << "F equals: " << sortedOrder.at(i)->f << endl;
-                //printPuzzle(sortedOrder.at(i)->STATE);
                 statesList.push_back(sortedOrder.at(i));
                 finalVals.push_back(sortedOrder.at(i));
             }
@@ -490,115 +483,6 @@ public:
         
         return localNodes;
     }
-    
-    //Simple function to make children
-    /*
-    vector<node*> makeChildren ( node* headNode, Problem problem){
-        
-        vector<node*>sorted;
-        
-        Point zeroPos = headNode->zeroPoint;
-        int depth = headNode->depth + 1;
-        
-        if ( zeroPos.x != 0 ){
-            node *up = new node;
-            //headNode->up = up;
-            up->depth = depth;
-            up->zeroPoint.x = zeroPos.x - 1;
-            up->zeroPoint.y = zeroPos.y;
-            up->STATE = problem.moveUp(headNode->STATE, zeroPos);
-            calculateH(up);
-            up->f = up->h + up->depth;
-            if (!checkRepeatedStates(up, statesList)){
-                //cout << "Up State: " << endl;
-                //printPuzzle(up->STATE);
-                sorted.push_back(up);
-            }
-        }
-        if ( zeroPos.x != 2 ){
-            node *down = new node;
-            //headNode->down = down;
-            down->depth = depth;
-            down->zeroPoint.x = zeroPos.x + 1;
-            down->zeroPoint.y = zeroPos.y;
-            down->STATE = problem.moveDown(headNode->STATE, zeroPos);
-            calculateH(down);
-            down->f = down->h + down->depth;
-            if (!checkRepeatedStates(down, statesList)){
-                //cout << "Down State: " << endl;
-                //printPuzzle(down->STATE);
-                sorted.push_back(down);
-            }
-        }
-        if ( zeroPos.y != 0 ){
-            node *left = new node;
-            //headNode->left = left;
-            left->depth = depth;
-            left->zeroPoint.x = zeroPos.x;
-            left->zeroPoint.y = zeroPos.y - 1;
-            left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
-            calculateH(left);
-            left->f = left->h + left->depth;
-            if (!checkRepeatedStates(left, statesList)){
-                //cout << "Left State: " << endl;
-                //printPuzzle(left->STATE);
-                sorted.push_back(left);
-            }
-        }
-        if ( zeroPos.y != 2 ){
-            node *right = new node;
-            //headNode->right = right;
-            right->depth = depth;
-            right->zeroPoint.x = zeroPos.x;
-            right->zeroPoint.y = zeroPos.y + 1;
-            right->STATE = problem.moveRight(headNode->STATE, zeroPos);
-            calculateH(right);
-            right->f = right->h + right->depth;
-            if (!checkRepeatedStates(right, statesList)){
-                //cout << "Right State: " << endl;
-                //printPuzzle(right->STATE);
-                sorted.push_back(right);
-            }
-        }
-        
-        return sorted;
-        
-    }
-     */
-    
-//    void checkChildren(vector<node*> sorted1, Problem problem){
-//        for ( unsigned i = 0; i < sorted1.size(); ++i ){
-//            if ( sorted1.at(i)->childsmallestH < sorted1.at(0)->childsmallestH ){
-//                iter_swap(sorted1.begin(), sorted1.begin()+i);
-//            }
-//        }
-//    }
-//
-//    void calculateChildSmallestH(node* headNode, Problem problem){
-//        int smallestH = 100;
-//        if ( headNode->up != NULL ){
-//            if ( headNode->up->h < smallestH){
-//                smallestH = headNode->up->h;
-//            }
-//        }
-//        if ( headNode->down != NULL ){
-//            if ( headNode->down->h < smallestH){
-//                smallestH = headNode->down->h;
-//            }
-//        }
-//        if ( headNode->left != NULL ){
-//            if ( headNode->left->h < smallestH){
-//                smallestH = headNode->left->h;
-//            }
-//        }
-//        if ( headNode->right != NULL ){
-//            if ( headNode->right->h < smallestH){
-//                smallestH = headNode->right->h;
-//            }
-//        }
-//        headNode->childsmallestH = smallestH;
-//    }
-           
     
     
 };
