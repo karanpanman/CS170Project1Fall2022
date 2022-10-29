@@ -77,6 +77,62 @@ struct Problem{
         {6,3,0}
     };
     
+    vector<vector<int>> Depth0
+    {
+        {1,2,3},
+        {4,5,6},
+        {7,8,0}
+    };
+    
+    vector<vector<int>> Depth2
+    {
+        {1,2,3},
+        {4,5,6},
+        {0,7,8}
+    };
+    
+    vector<vector<int>> Depth4
+    {
+        {1,2,3},
+        {5,0,6},
+        {4,7,8}
+    };
+    
+    vector<vector<int>> Depth8
+    {
+        {1,3,6},
+        {5,0,2},
+        {4,7,8}
+    };
+    
+    vector<vector<int>> Depth12
+    {
+        {1,3,6},
+        {5,0,7},
+        {4,8,2}
+    };
+    
+    vector<vector<int>> Depth16
+    {
+        {1,6,7},
+        {5,0,3},
+        {4,8,2}
+    };
+    
+    vector<vector<int>> Depth20
+    {
+        {7,1,2},
+        {4,8,5},
+        {6,3,0}
+    };
+    
+    vector<vector<int>> Depth24
+    {
+        {0,7,2},
+        {4,6,1},
+        {3,5,8}
+    };
+    
     Point zeroOriginalPosition = findPos(INITIALSTATE, 0);
     
     
@@ -442,9 +498,8 @@ node* general_search( Problem problem){
             return headNode;
         }
         
-        AstarMisplacedTile QUEUEINGFUNCTION(nodes);
+        QUEUEING_FUNCTION QUEUEINGFUNCTION(nodes);
         nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
-        //cout << "Nodes queue currently contains: H = " << nodes.front()->h << " Puzzle looks like: " << endl;
     }
     return root;
 }
@@ -489,6 +544,7 @@ int main(int argc, const char * argv[]) {
     cout << endl;
     
     Problem problem;
+    problem.INITIALSTATE = problem.Depth0;
     //QUEUEING_FUNCTION q;
     
     node *Test = new node;
