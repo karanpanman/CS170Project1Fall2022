@@ -164,7 +164,6 @@ public:
     Point puzzleSolutionPoints[9];
     queue<node*> localNodes;
     vector<node*> sortedOrder;
-    
     //come back to this and fix h value
     
     
@@ -184,14 +183,14 @@ public:
     bool checkRepeatedStates ( node* puzzle, vector<node*> totalStatesList ){
        
         if (!totalStatesList.empty()){
-            sort(totalStatesList.begin(), totalStatesList.end(), lesser_h());
+            sort(totalStatesList.begin(), totalStatesList.end(), lesser_f());
             
-            if (puzzle->h < (totalStatesList.at(totalStatesList.size()/2)->h )){
+            if (puzzle->h < (totalStatesList.at(totalStatesList.size()/2)->f )){
                 for (unsigned i = 0; i <= totalStatesList.size()/2; ++i){
                     if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
                         return true;
                     }
-                    if ( puzzle->h < totalStatesList.at(i)->h ){
+                    if ( puzzle->f < totalStatesList.at(i)->f ){
                         return false;
                     }
                 }
@@ -201,7 +200,7 @@ public:
                     if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
                         return true;
                     }
-                    if ( puzzle->h < totalStatesList.at(i)->h ){
+                    if ( puzzle->f < totalStatesList.at(i)->f ){
                         return false;
                     }
                 }
@@ -405,11 +404,14 @@ public:
         }
         
         sortedOrder = makeChildren(headNode, problem);
-
-    
+        while(!localNodes.empty()){
+            sortedOrder.push_back(localNodes.front());
+            localNodes.pop();
+        }
         
-       // sort(sortedOrder.begin(), sortedOrder.end(), lesser_f());
+        sort(sortedOrder.begin(), sortedOrder.end(), lesser_f());
         
+        queue<node*> returnval;
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
             if ( !checkRepeatedStates(sortedOrder.at(i), statesList)){
                 //cout << "H equals: " << sortedOrder.at(i)->h << endl;
@@ -418,16 +420,8 @@ public:
                 localNodes.push(sortedOrder.at(i));
             }
         }
-        while(!localNodes.empty()){
-            newSet.push(localNodes.front());
-            localNodes.pop();}
+        
         cout << endl;
-
-        queue<node*> returnval;
-        while(!newSet.empty()){
-            returnval.push(newSet.top());
-            newSet.pop();
-        }
         return returnval;
     }
     
@@ -436,11 +430,12 @@ public:
         vector<node*>sorted;
         
         Point zeroPos = headNode->zeroPoint;
+        int depth = headNode->depth + 1;
         
         if ( zeroPos.x != 0 ){
             node *up = new node;
             //headNode->up = up;
-            up->depth = headNode->depth + 1;
+            up->depth = depth;
             up->zeroPoint.x = zeroPos.x - 1;
             up->zeroPoint.y = zeroPos.y;
             up->STATE = problem.moveUp(headNode->STATE, zeroPos);
@@ -455,7 +450,7 @@ public:
         if ( zeroPos.x != 2 ){
             node *down = new node;
             //headNode->down = down;
-            down->depth = headNode->depth + 1;
+            down->depth = depth;
             down->zeroPoint.x = zeroPos.x + 1;
             down->zeroPoint.y = zeroPos.y;
             down->STATE = problem.moveDown(headNode->STATE, zeroPos);
@@ -470,7 +465,7 @@ public:
         if ( zeroPos.y != 0 ){
             node *left = new node;
             //headNode->left = left;
-            left->depth = headNode->depth + 1;
+            left->depth = depth;
             left->zeroPoint.x = zeroPos.x;
             left->zeroPoint.y = zeroPos.y - 1;
             left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
@@ -485,7 +480,7 @@ public:
         if ( zeroPos.y != 2 ){
             node *right = new node;
             //headNode->right = right;
-            right->depth = headNode->depth + 1;
+            right->depth = depth;
             right->zeroPoint.x = zeroPos.x;
             right->zeroPoint.y = zeroPos.y + 1;
             right->STATE = problem.moveRight(headNode->STATE, zeroPos);
