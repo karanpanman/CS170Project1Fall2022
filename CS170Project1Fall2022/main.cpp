@@ -406,15 +406,9 @@ public:
         
         sortedOrder = makeChildren(headNode, problem);
 
+    
         
-        
-        while(!localNodes.empty()){
-            node* first = localNodes.front();
-            localNodes.pop();
-            sortedOrder.push_back(first);
-        }
-        
-        sort(sortedOrder.begin(), sortedOrder.end(), lesser_f());
+       // sort(sortedOrder.begin(), sortedOrder.end(), lesser_f());
         
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
             if ( !checkRepeatedStates(sortedOrder.at(i), statesList)){
@@ -424,10 +418,17 @@ public:
                 localNodes.push(sortedOrder.at(i));
             }
         }
+        while(!localNodes.empty()){
+            newSet.push(localNodes.front());
+            localNodes.pop();}
         cout << endl;
 
-
-        return localNodes;
+        queue<node*> returnval;
+        while(!newSet.empty()){
+            returnval.push(newSet.top());
+            newSet.pop();
+        }
+        return returnval;
     }
     
     vector<node*> makeChildren ( node* headNode, Problem problem){
