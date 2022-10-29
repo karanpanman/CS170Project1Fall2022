@@ -81,28 +81,13 @@ vector<vector<int>> puzzleSolution
 struct Problem{
     vector<vector<int>> INITIALSTATE
     {
-        {1,6,7},
-        {5,0,3},
-        {4,8,2}
+        {0,7,2},
+        {4,6,1},
+        {3,5,8}
     };
     
     Point zeroOriginalPosition = findPos(INITIALSTATE, 0);
     
-//    void inputProblem(){
-//        vector<vector<int>> finalVec;
-//        int num;
-//        unsigned j;
-//        for (unsigned i = 0; i < 3; ++i){
-//            j = 0;
-//            while ( j < 3 ){
-//                cin >> num;
-//                finalVec[i][j] = num;
-//                ++j;
-//            }
-//            cout << endl;
-//        }
-//        INITIALSTATE = finalVec;
-//    }
     
     bool GOALTEST(vector<vector<int>> puzzle){
         if ( puzzle == puzzleSolution ){
@@ -185,7 +170,7 @@ public:
         if (!totalStatesList.empty()){
             sort(totalStatesList.begin(), totalStatesList.end(), lesser_f());
             
-            if (puzzle->h < (totalStatesList.at(totalStatesList.size()/2)->f )){
+            if (puzzle->f < (totalStatesList.at(totalStatesList.size()/2)->f )){
                 for (unsigned i = 0; i <= totalStatesList.size()/2; ++i){
                     if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
                         return true;
@@ -404,25 +389,33 @@ public:
         }
         
         sortedOrder = makeChildren(headNode, problem);
-        while(!localNodes.empty()){
-            sortedOrder.push_back(localNodes.front());
-            localNodes.pop();
-        }
         
         sort(sortedOrder.begin(), sortedOrder.end(), lesser_f());
-        
-        queue<node*> returnval;
+        vector<node*> finalVals;
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
             if ( !checkRepeatedStates(sortedOrder.at(i), statesList)){
-                //cout << "H equals: " << sortedOrder.at(i)->h << endl;
+                //cout << "F equals: " << sortedOrder.at(i)->f << endl;
                 //printPuzzle(sortedOrder.at(i)->STATE);
+                cout << endl;
                 statesList.push_back(sortedOrder.at(i));
-                localNodes.push(sortedOrder.at(i));
+                finalVals.push_back(sortedOrder.at(i));
             }
         }
         
-        cout << endl;
-        return returnval;
+        while (!localNodes.empty()){
+            node* front = new node;
+            front = localNodes.front();
+            finalVals.push_back(front);
+            localNodes.pop();
+        }
+        
+        sort(finalVals.begin(), finalVals.end(), lesser_f());
+        for (unsigned i = 0; i < finalVals.size(); ++i){
+            localNodes.push(finalVals.at(i));
+        }
+        
+        
+        return localNodes;
     }
     
     vector<node*> makeChildren ( node* headNode, Problem problem){
@@ -548,8 +541,9 @@ node* general_search( Problem problem){
     while ( !nodes.empty() ){
         node* headNode = nodes.front();
         nodes.pop();
-        //cout << "Head node state: " << endl;
-        //printPuzzle(headNode->STATE);
+        cout << "Head node state: " << endl;
+        printPuzzle(headNode->STATE);
+        cout << endl;
         if ( problem.GOALTEST(headNode->STATE) ){
             cout << "Depth: " << headNode->depth << endl;
             return headNode;
