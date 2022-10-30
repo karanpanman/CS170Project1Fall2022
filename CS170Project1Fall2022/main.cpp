@@ -70,8 +70,7 @@ int calculateDistance (int i, int j, int num, Point solution[]){
 }
 
 struct Problem{
-    vector<vector<int>> INITIALSTATE
-    {
+    vector<vector<int>> INITIALSTATE{
         {7,1,2},
         {4,8,5},
         {6,3,0}
@@ -133,7 +132,14 @@ struct Problem{
         {3,5,8}
     };
     
-    Point zeroOriginalPosition = findPos(INITIALSTATE, 0);
+    vector<vector<int>> EamonnTest
+    {
+        {4,1,2},
+        {5,3,0},
+        {7,8,6}
+    };
+    
+    //Point zeroOriginalPosition; //= findPos(INITIALSTATE, 0);
     
     
     bool GOALTEST(vector<vector<int>> puzzle){
@@ -183,6 +189,7 @@ void printPuzzle(vector<vector<int>> puzzle){
 
 //statesList is comprised of all repeat states
 vector<node*> statesList;
+unsigned long nodesExpanded = 0;
 
 //Create Heuristics for different Algorithms:
 //Operators: moveUp, moveDown, moveLeft, moveRight
@@ -245,6 +252,8 @@ public:
     }
         
     queue<node*> EXPAND( node* headNode, Problem problem){
+        
+        nodesExpanded = nodesExpanded + 1;
         //This places the Initial Problem state into our repeated states list
         if (statesList.empty()){
             calculateH(headNode);
@@ -259,6 +268,7 @@ public:
             calculateH(sortedOrder.at(i));
             sortedOrder.at(i)->f = sortedOrder.at(i)->h + sortedOrder.at(i)->depth;
         }
+        
         
         sort(sortedOrder.begin(), sortedOrder.end(), lesser_f());
         vector<node*> finalVals;
@@ -296,6 +306,27 @@ public:
         Point zeroPos = headNode->zeroPoint;
         int depth = headNode->depth + 1;
         
+        
+        if ( zeroPos.y != 0 ){
+            node *left = new node;
+            left->depth = depth;
+            left->zeroPoint.x = zeroPos.x;
+            left->zeroPoint.y = zeroPos.y - 1;
+            left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
+            if (!checkRepeatedStates(left, statesList)){
+                sorted.push_back(left);
+            }
+        }
+        if ( zeroPos.y != 2 ){
+            node *right = new node;
+            right->depth = depth;
+            right->zeroPoint.x = zeroPos.x;
+            right->zeroPoint.y = zeroPos.y + 1;
+            right->STATE = problem.moveRight(headNode->STATE, zeroPos);
+            if (!checkRepeatedStates(right, statesList)){
+                sorted.push_back(right);
+            }
+        }
         if ( zeroPos.x != 0 ){
             node *up = new node;
             up->depth = depth;
@@ -315,26 +346,6 @@ public:
             down->STATE = problem.moveDown(headNode->STATE, zeroPos);
             if (!checkRepeatedStates(down, statesList)){
                 sorted.push_back(down);
-            }
-        }
-        if ( zeroPos.y != 0 ){
-            node *left = new node;
-            left->depth = depth;
-            left->zeroPoint.x = zeroPos.x;
-            left->zeroPoint.y = zeroPos.y - 1;
-            left->STATE = problem.moveLeft(headNode->STATE, zeroPos);
-            if (!checkRepeatedStates(left, statesList)){
-                sorted.push_back(left);
-            }
-        }
-        if ( zeroPos.y != 2 ){
-            node *right = new node;
-            right->depth = depth;
-            right->zeroPoint.x = zeroPos.x;
-            right->zeroPoint.y = zeroPos.y + 1;
-            right->STATE = problem.moveRight(headNode->STATE, zeroPos);
-            if (!checkRepeatedStates(right, statesList)){
-                sorted.push_back(right);
             }
         }
         
@@ -364,6 +375,7 @@ public:
     
     queue<node*> EXPAND( node* headNode, Problem problem){
         //This places the Initial Problem state into our repeated states list
+        nodesExpanded = nodesExpanded + 1;
         if (statesList.empty()){
             calculateH(headNode);
             headNode->f = headNode->h + headNode->depth;
@@ -420,7 +432,6 @@ public:
     //Calculate manhattan distance
     void calculateH(node* headNode){
         headNode->h = 0;
-        cout << endl;
         for (unsigned i = 0; i < headNode->STATE.size(); i++){
             for (unsigned j = 0; j < headNode->STATE[i].size(); ++j){
                 if ( headNode->STATE[i][j] != 0 && headNode->STATE[i][j] != puzzleSolution[i][j] ) {                    headNode->h = headNode->h + calculateDistance(i, j, headNode->STATE[i][j], puzzleSolutionPoints);
@@ -431,6 +442,7 @@ public:
     
     queue<node*> EXPAND( node* headNode, Problem problem){
         //This places the Initial Problem state into our repeated states list
+        nodesExpanded = nodesExpanded + 1;
         if (statesList.empty()){
             calculateH(headNode);
             headNode->f = headNode->h + headNode->depth;
@@ -484,7 +496,8 @@ node* general_search( Problem problem){
     //MAKE-NODE WITH problem.INITIAL-STATE
     root->STATE = problem.INITIALSTATE;
     root->depth = 0;
-    root->zeroPoint = problem.zeroOriginalPosition;
+    root->zeroPoint = findPos(root->STATE, 0);
+    nodesExpanded = nodesExpanded + 1;
     nodes.push(root);
     
     while ( !nodes.empty() ){
@@ -498,7 +511,7 @@ node* general_search( Problem problem){
             return headNode;
         }
         
-        QUEUEING_FUNCTION QUEUEINGFUNCTION(nodes);
+        AstarManhattanDistance QUEUEINGFUNCTION(nodes);
         nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
     }
     return root;
@@ -508,43 +521,12 @@ node* general_search( Problem problem){
 
 int main(int argc, const char * argv[]) {
     
-    //Initialize Our own custom Puzzle as a 3x3 2-D Vector
-//    vector<vector<int>> vectPuzzle;
-//    vectPuzzle.resize(3);
-//    for (unsigned i = 0; i < vectPuzzle.size(); ++i){
-//        vectPuzzle[i].resize(3);
-//    }
     
-//    node *parent = new node;
-//    parent->val = 5;
-//    cout << parent->val << endl;
-    node *parent = new node;
-    parent->STATE =
-    {
-        {1,2,3},
-        {4,5,6},
-        {0,7,8}
-    };
     
-    node *test = new node;
-    test->STATE =
-    {
-        {1,2,3},
-        {4,3,6},
-        {0,7,8}
-    };
     
-
-    if (parent->STATE == test->STATE){
-        cout << "LET'S GOOOOO" << endl;
-    }
-    
-    Problem check1;
-    printPuzzle(check1.INITIALSTATE);
     cout << endl;
-    
     Problem problem;
-    problem.INITIALSTATE = problem.Depth0;
+    problem.INITIALSTATE = problem.EamonnTest;
     //QUEUEING_FUNCTION q;
     
     node *Test = new node;
@@ -553,6 +535,7 @@ int main(int argc, const char * argv[]) {
     
     printPuzzle(Test->STATE);
     
+    cout << "Nodes expanded: " << nodesExpanded << endl;
     cout << endl;
     
     //cout << "X: " << zeroPos.x << " Y:" << zeroPos.y << endl;
