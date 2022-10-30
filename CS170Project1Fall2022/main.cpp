@@ -139,6 +139,20 @@ struct Problem{
         {7,8,6}
     };
     
+    vector<vector<int>> PreetTest
+    {
+        {2,6,5},
+        {6,4,3},
+        {7,1,0}
+    };
+    
+    vector<vector<int>> DiscordTest
+    {
+        {8,6,7},
+        {2,5,4},
+        {3,0,1}
+    };
+    
     //Point zeroOriginalPosition; //= findPos(INITIALSTATE, 0);
     
     
@@ -200,6 +214,9 @@ public:
     Point puzzleSolutionPoints[9];
     queue<node*> localNodes;    //Uused to store nodes from General Search Algorithm
     vector<node*> sortedOrder;  //Used in all algorithms to hold the children of our headNode
+    int type = 0;
+    
+    QUEUEING_FUNCTION(){}
     
     QUEUEING_FUNCTION( queue<node*> nodes){
         localNodes = nodes;
@@ -214,6 +231,7 @@ public:
         puzzleSolutionPoints[7].x = 2; puzzleSolutionPoints[7].y = 0;
         puzzleSolutionPoints[8].x = 2; puzzleSolutionPoints[8].y = 1;
     }
+    
     
     //This will look at the child node being passed in to verify if it is a repeat or not
     //Return 0 = Unseen State, Return 1 = Repeat State
@@ -434,7 +452,8 @@ public:
         headNode->h = 0;
         for (unsigned i = 0; i < headNode->STATE.size(); i++){
             for (unsigned j = 0; j < headNode->STATE[i].size(); ++j){
-                if ( headNode->STATE[i][j] != 0 && headNode->STATE[i][j] != puzzleSolution[i][j] ) {                    headNode->h = headNode->h + calculateDistance(i, j, headNode->STATE[i][j], puzzleSolutionPoints);
+                if ( headNode->STATE[i][j] != 0 && headNode->STATE[i][j] != puzzleSolution[i][j] ) {
+                    headNode->h = headNode->h + calculateDistance(i, j, headNode->STATE[i][j], puzzleSolutionPoints);
                 }
             }
         }
@@ -488,8 +507,9 @@ public:
     
 };
 
-
-node* general_search( Problem problem){
+//Function general-search
+node* general_search( Problem problem, QUEUEING_FUNCTION q){
+    int type = q.type;
     node* root = new node;
     //MAKE QUEUE
     queue<node*> nodes;
@@ -498,50 +518,79 @@ node* general_search( Problem problem){
     root->depth = 0;
     root->zeroPoint = findPos(root->STATE, 0);
     nodesExpanded = nodesExpanded + 1;
+    //NODES = MAKE-QUEUE(MAKE-NODE(PROBLEM.INITIALSTATE))
     nodes.push(root);
     
+    //LOOP DO and also IF EMPTY(NODES) THEN RETURN FAILURE
     while ( !nodes.empty() ){
+        //node = REMOVE-FRONT(nodes)
         node* headNode = nodes.front();
         nodes.pop();
         cout << "Head node state: " << endl;
         printPuzzle(headNode->STATE);
         cout << endl;
+        //if problem.GOAL-TEST(node.STATE) succeeds then RETURN NODE
         if ( problem.GOALTEST(headNode->STATE) ){
             cout << "Depth: " << headNode->depth << endl;
             return headNode;
         }
+        //nodes = QUEUEING-FUNCTION(NODES,EXPAND(NODE,PROBLEM.operators))
+        if (type == 0){
+            QUEUEING_FUNCTION QUEUEINGFUNCTION(nodes);
+            nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
+        }
+        else if (type == 1){
+            AstarMisplacedTile QUEUEINGFUNCTION(nodes);
+            nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
+        }
+        else{
+            AstarManhattanDistance QUEUEINGFUNCTION(nodes);
+            nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
+        }
         
-        AstarManhattanDistance QUEUEINGFUNCTION(nodes);
-        nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
     }
+    cout << "Failure" << endl;
     return root;
 }
 
+//Checks to see if user-inputted puzzle contains all different numbers
+bool isValid(vector<vector<int>> puzzle){
+    int arr[puzzle.size()*puzzle.size()];
+    unsigned i = 0; while( i != (puzzle.size()*puzzle.size()) ){arr[i] = 0;}
+    
+    for (i = 0; i < puzzle.size(); ++i){
+        for (unsigned j = 0; j < puzzle[i].size(); j++){
+            if ( arr[puzzle[i][j]] == 0 ){
+                arr[puzzle[i][j]] = 1;
+            }
+            else{
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 
 int main(int argc, const char * argv[]) {
     
-    
-    
-    
-    cout << endl;
     Problem problem;
-    problem.INITIALSTATE = problem.EamonnTest;
-    //QUEUEING_FUNCTION q;
-    
     node *Test = new node;
     
-    Test = general_search(problem);
+    cout << "~Welcome to Karan's 8-Puzzle Search Algorithm Demonstration~\n\n" << "Would you like to pick a default puzzle or enter your own?" << endl;
+    cout << "Press 1 to see the default cases or Press 2 to type your own\n" << endl;
+    
+    problem.INITIALSTATE = problem.DiscordTest;
+    //QUEUEING_FUNCTION q;
+    
+    
+    QUEUEING_FUNCTION qtest;
+    Test = general_search(problem, qtest);
     
     printPuzzle(Test->STATE);
     
     cout << "Nodes expanded: " << nodesExpanded << endl;
     cout << endl;
     
-    //cout << "X: " << zeroPos.x << " Y:" << zeroPos.y << endl;
-    
-    
-    
-    //cout << slidePuzzle[1][2] << endl;
     return 0;
 }
