@@ -48,6 +48,11 @@ struct node {
 };
 
 //Helps me sort by f to create the proper queue for A Star: f(n) = g(n) + h(n);
+struct lesser_h{
+    inline bool operator() (const node* n1, const node* n2){
+        return (n1->h < n2->h);
+    }
+};
 struct lesser_f{
     inline bool operator() (const node* n1, const node* n2){
         return (n1->f < n2->f);
@@ -198,9 +203,11 @@ struct Problem{
 //Prints out the passed in node->STATE puzzle
 void printPuzzle(vector<vector<int>> puzzle){
     for (unsigned i = 0; i < puzzle.size(); i++){
-        for (unsigned j = 0; j < puzzle[i].size(); ++j){
-            cout << puzzle[i][j] << " ";
+        cout << "[";
+        for (unsigned j = 0; j < puzzle[i].size() - 1; ++j){
+            cout << puzzle[i][j] << ", ";
         }
+        cout << puzzle[i][puzzle[i].size() - 1] << "]";
         cout << endl;
     }
 }
@@ -242,25 +249,25 @@ public:
     bool checkRepeatedStates ( node* puzzle, vector<node*> totalStatesList ){
        
         if (!totalStatesList.empty()){
-            sort(totalStatesList.begin(), totalStatesList.end(), lesser_f());
+            sort(totalStatesList.begin(), totalStatesList.end(), lesser_h());
             //Splitting the search to bottom half and upper half all depending on the f value
             //Bottom half of the statesList
-            if (puzzle->f < (totalStatesList.at(totalStatesList.size()/2)->f )){
+            if (puzzle->h < (totalStatesList.at(totalStatesList.size()/2)->h )){
                 for (unsigned i = 0; i <= totalStatesList.size()/2; ++i){
                     if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
                         return true;
                     }   //If the statesList puzzle being seen is already higher f, then we can conclude our curr node is new
-                    if ( puzzle->f < totalStatesList.at(i)->f ){
+                    if ( puzzle->h < totalStatesList.at(i)->h ){
                         return false;
                     }
                 }
             }
             else{   //Top half - 1
-                for (unsigned long i = totalStatesList.size()/2 ; i < totalStatesList.size(); ++i){
+                for (unsigned long i = totalStatesList.size()/2 - 1 ; i < totalStatesList.size(); ++i){
                     if ( puzzle->STATE == totalStatesList.at(i)->STATE ){
                         return true;
                     }
-                    if ( puzzle->f < totalStatesList.at(i)->f ){
+                    if ( puzzle->h < totalStatesList.at(i)->h ){
                         return false;
                     }
                 }
@@ -472,6 +479,7 @@ public:
             statesList.push_back(headNode);
         }
         
+        
         //Make our children and store them in the sorted order vector
         sortedOrder = makeChildren(headNode, problem);
         
@@ -481,6 +489,11 @@ public:
         }
         
         sort(sortedOrder.begin(), sortedOrder.end(), lesser_f());
+//        int minH = sortedOrder.at(0)->h;
+//        while ( sortedOrder.at(sortedOrder.size() - 1)->h != minH ){
+//            sortedOrder.pop_back();
+//        }
+        
         vector<node*> finalVals;
         //While we check if any of the children have been repeated, we want to put all the new ones in our Final Values vector
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
@@ -492,8 +505,7 @@ public:
         
         //Final values now takes in the prior nodes in our original nodes queue and will then sort the new children with old parents
         while (!localNodes.empty()){
-            node* front = new node;
-            front = localNodes.front();
+            node* front = localNodes.front();
             finalVals.push_back(front);
             localNodes.pop();
         }
@@ -515,12 +527,11 @@ public:
 node* general_search( Problem problem, QUEUEING_FUNCTION q){
     int type = q.type;
     node* root = new node;
+    unsigned long maxQueueSize = 1;
     //MAKE QUEUE
     queue<node*> nodes;
     //MAKE-NODE WITH problem.INITIAL-STATE
-    root->STATE = problem.INITIALSTATE;
-    root->depth = 0;
-    root->zeroPoint = findPos(root->STATE, 0);
+    root->STATE = problem.INITIALSTATE; root->depth = 0; root->zeroPoint = findPos(root->STATE, 0);
     nodesExpanded = nodesExpanded + 1;
     //NODES = MAKE-QUEUE(MAKE-NODE(PROBLEM.INITIALSTATE))
     nodes.push(root);
@@ -528,14 +539,17 @@ node* general_search( Problem problem, QUEUEING_FUNCTION q){
     //LOOP DO and also IF EMPTY(NODES) THEN RETURN FAILURE
     while ( !nodes.empty() ){
         //node = REMOVE-FRONT(nodes)
+       
         node* headNode = nodes.front();
         nodes.pop();
-        cout << "Head node state: " << endl;
-        printPuzzle(headNode->STATE);
+        
         cout << endl;
         //if problem.GOAL-TEST(node.STATE) succeeds then RETURN NODE
         if ( problem.GOALTEST(headNode->STATE) ){
-            cout << "Depth: " << headNode->depth << endl;
+            cout << "Goal state!" << endl;
+            cout << "Solution Depth was " << headNode->depth << endl;
+            cout << "Number of nodes expanded: " << nodesExpanded << endl;
+            cout << "Max queue size: " << maxQueueSize << endl;
             return headNode;
         }
         //nodes = QUEUEING-FUNCTION(NODES,EXPAND(NODE,PROBLEM.operators))
@@ -551,6 +565,11 @@ node* general_search( Problem problem, QUEUEING_FUNCTION q){
             AstarManhattanDistance QUEUEINGFUNCTION(nodes);
             nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
         }
+        if (nodes.size() > maxQueueSize){
+            maxQueueSize = nodes.size();
+        }
+        cout << "The best state to expand with a g(n) = " << headNode->depth << " and a h(n) = " << headNode->h << " is:" << endl;
+        printPuzzle(headNode->STATE);
         
     }
     cout << "Failure" << endl;
@@ -564,7 +583,7 @@ node* general_search( Problem problem, QUEUEING_FUNCTION q){
 vector<vector<int>> getTest (int num){
     switch(num){
         case 1:
-            return Depth0;
+            return EamonnTest;
         case 2:
             return Depth2;
         case 3:
@@ -650,7 +669,7 @@ int main(int argc, const char * argv[]) {
     
     printPuzzle(Test->STATE);
     
-    cout << "Nodes expanded: " << nodesExpanded << endl;
+    
     cout << endl;
     
     return 0;
