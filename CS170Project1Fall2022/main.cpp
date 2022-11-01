@@ -131,20 +131,6 @@ vector<vector<int>> EamonnTest
     {7,8,6}
 };
 
-vector<vector<int>> PreetTest
-{
-    {2,6,5},
-    {6,4,3},
-    {7,1,0}
-};
-
-vector<vector<int>> DiscordTest
-{
-    {8,6,7},
-    {2,5,4},
-    {3,0,1}
-};
-
 //Helps with calculating H for Manhattan Distance
 int calculateDistance (int i, int j, int num, Point solution[]){
     int sum = 0;
@@ -154,17 +140,13 @@ int calculateDistance (int i, int j, int num, Point solution[]){
     return sum;
 }
 
+//Problem Struct to help contain operators and initial state
 struct Problem{
     vector<vector<int>> INITIALSTATE{
         {7,1,2},
         {4,8,5},
         {6,3,0}
     };
-    
-    
-    
-    //Point zeroOriginalPosition; //= findPos(INITIALSTATE, 0);
-    
     
     bool GOALTEST(vector<vector<int>> puzzle){
         if ( puzzle == puzzleSolution ){
@@ -215,10 +197,11 @@ void printPuzzle(vector<vector<int>> puzzle){
 
 //statesList is comprised of all repeat states
 vector<node*> statesList;
+//Keeps track of nodesExpanded
 unsigned long nodesExpanded = 1;
 
 //Create Heuristics for different Algorithms:
-//Operators: moveUp, moveDown, moveLeft, moveRight
+//Operators: Blank space -> moveUp, moveDown, moveLeft, moveRight
 //Treating Base class Queueing Function as Uniform Cost for now since H is hardcoded zero
 class QUEUEING_FUNCTION {
 public:
