@@ -11,6 +11,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <map>
 
 using namespace std;
 
@@ -60,6 +61,84 @@ vector<vector<int>> puzzleSolution
     {7,8,0}
 };
 
+//List of different tests
+vector<vector<int>> Depth0
+{
+    {1,2,3},
+    {4,5,6},
+    {7,8,0}
+};
+
+vector<vector<int>> Depth2
+{
+    {1,2,3},
+    {4,5,6},
+    {0,7,8}
+};
+
+vector<vector<int>> Depth4
+{
+    {1,2,3},
+    {5,0,6},
+    {4,7,8}
+};
+
+vector<vector<int>> Depth8
+{
+    {1,3,6},
+    {5,0,2},
+    {4,7,8}
+};
+
+vector<vector<int>> Depth12
+{
+    {1,3,6},
+    {5,0,7},
+    {4,8,2}
+};
+
+vector<vector<int>> Depth16
+{
+    {1,6,7},
+    {5,0,3},
+    {4,8,2}
+};
+
+vector<vector<int>> Depth20
+{
+    {7,1,2},
+    {4,8,5},
+    {6,3,0}
+};
+
+vector<vector<int>> Depth24
+{
+    {0,7,2},
+    {4,6,1},
+    {3,5,8}
+};
+
+vector<vector<int>> EamonnTest
+{
+    {4,1,2},
+    {5,3,0},
+    {7,8,6}
+};
+
+vector<vector<int>> PreetTest
+{
+    {2,6,5},
+    {6,4,3},
+    {7,1,0}
+};
+
+vector<vector<int>> DiscordTest
+{
+    {8,6,7},
+    {2,5,4},
+    {3,0,1}
+};
+
 //Helps with calculating H for Manhattan Distance
 int calculateDistance (int i, int j, int num, Point solution[]){
     int sum = 0;
@@ -76,82 +155,7 @@ struct Problem{
         {6,3,0}
     };
     
-    vector<vector<int>> Depth0
-    {
-        {1,2,3},
-        {4,5,6},
-        {7,8,0}
-    };
     
-    vector<vector<int>> Depth2
-    {
-        {1,2,3},
-        {4,5,6},
-        {0,7,8}
-    };
-    
-    vector<vector<int>> Depth4
-    {
-        {1,2,3},
-        {5,0,6},
-        {4,7,8}
-    };
-    
-    vector<vector<int>> Depth8
-    {
-        {1,3,6},
-        {5,0,2},
-        {4,7,8}
-    };
-    
-    vector<vector<int>> Depth12
-    {
-        {1,3,6},
-        {5,0,7},
-        {4,8,2}
-    };
-    
-    vector<vector<int>> Depth16
-    {
-        {1,6,7},
-        {5,0,3},
-        {4,8,2}
-    };
-    
-    vector<vector<int>> Depth20
-    {
-        {7,1,2},
-        {4,8,5},
-        {6,3,0}
-    };
-    
-    vector<vector<int>> Depth24
-    {
-        {0,7,2},
-        {4,6,1},
-        {3,5,8}
-    };
-    
-    vector<vector<int>> EamonnTest
-    {
-        {4,1,2},
-        {5,3,0},
-        {7,8,6}
-    };
-    
-    vector<vector<int>> PreetTest
-    {
-        {2,6,5},
-        {6,4,3},
-        {7,1,0}
-    };
-    
-    vector<vector<int>> DiscordTest
-    {
-        {8,6,7},
-        {2,5,4},
-        {3,0,1}
-    };
     
     //Point zeroOriginalPosition; //= findPos(INITIALSTATE, 0);
     
@@ -554,21 +558,53 @@ node* general_search( Problem problem, QUEUEING_FUNCTION q){
 }
 
 //Checks to see if user-inputted puzzle contains all different numbers
-bool isValid(vector<vector<int>> puzzle){
-    int arr[puzzle.size()*puzzle.size()];
-    unsigned i = 0; while( i != (puzzle.size()*puzzle.size()) ){arr[i] = 0;}
+
+
+//For choosing the correct test state based on user input
+vector<vector<int>> getTest (int num){
+    switch(num){
+        case 1:
+            return Depth0;
+        case 2:
+            return Depth2;
+        case 3:
+            return Depth4;
+        case 4:
+            return Depth8;
+        case 5:
+            return Depth12;
+        case 6:
+            return Depth16;
+        case 7:
+            return Depth20;
+        case 8:
+            return Depth24;
+        default:
+            return Depth0;
+            break;
+    }
+}
+
+vector<vector<int>> makeTest (int row, int col){
+    int i = 0;
+    int j = 0;
+    int n1;
+    //I initialized 3x3 vector just for ease of use
+    vector<vector<int>> puzzle{
+        {0,0,0},
+        {0,0,0},
+        {0,0,0}
+    };
     
-    for (i = 0; i < puzzle.size(); ++i){
-        for (unsigned j = 0; j < puzzle[i].size(); j++){
-            if ( arr[puzzle[i][j]] == 0 ){
-                arr[puzzle[i][j]] = 1;
-            }
-            else{
-                return false;
-            }
+    for ( i = 0; i < row; ++i){
+        for ( j = 0; j < col; ++j){
+            cout << "Type row " << i + 1 << " column " << j + 1 << " value: ";
+            cin >> n1;
+            puzzle[i][j] = n1;
         }
     }
-    return true;
+    printPuzzle(puzzle);
+    return puzzle;
 }
 
 
@@ -576,16 +612,41 @@ int main(int argc, const char * argv[]) {
     
     Problem problem;
     node *Test = new node;
+    string input;
+    int num;
     
-    cout << "~Welcome to Karan's 8-Puzzle Search Algorithm Demonstration~\n\n" << "Would you like to pick a default puzzle or enter your own?" << endl;
-    cout << "Press 1 to see the default cases or Press 2 to type your own\n" << endl;
+    cout << "~Welcome to Karan's 8-Puzzle Search Algorithm Demonstration~\n\n" << "Would you like to pick a default puzzle or enter your own?\n" << endl;
+    cout << "Press 1 to see the default cases or Press 2 to enter your own\nPress Enter after: " << endl;
+    cin >> input;
+    while ( !(input == "1" || input == "2") ){
+        cout << "Please enter a valid input\n";
+        cin >> input;
+    }
     
-    problem.INITIALSTATE = problem.DiscordTest;
-    //QUEUEING_FUNCTION q;
+    if (input == "1"){
+        cout << "Press 1: Depth 0, Press 2: Depth 2, Press 3: Depth 4, Press 4: Depth 8,\nPress 5: Depth 12, Press 6: Depth 16, Press 7: Depth 20, Press 8: Depth 24" << endl;
+        cin >> num;
+        while ( !(num == 1 || num == 2 || num == 3 || num == 4 || num == 5 || num == 6 || num == 7 || num == 8) ){
+            cout << "Please enter a valid input\n";
+            cin >> input;
+        }
+        problem.INITIALSTATE = getTest(num);
+        
+    }
+    else{
+        problem.INITIALSTATE = makeTest(3, 3);
+    }
     
+    cout << "Which Algorithm would you like to use?\n0 for Uniform Cost Distance, 1 for A* Misplaced Tile, 2 for A* Manhattan Distance" << endl;
+    cin >> num;
+    while ( !(num == 0 || num == 1 || num == 2)){
+        cout << "Please enter a valid number: ";
+        cin >> num;
+    }
     
-    QUEUEING_FUNCTION qtest;
-    Test = general_search(problem, qtest);
+    QUEUEING_FUNCTION QUEUEINGFUNCTION;
+    QUEUEINGFUNCTION.type = num;
+    Test = general_search(problem, QUEUEINGFUNCTION);
     
     printPuzzle(Test->STATE);
     
