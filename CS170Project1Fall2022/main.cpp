@@ -22,6 +22,7 @@ struct Point {
     
 };
 
+//Find Pose
 Point findPos ( vector<vector<int>> puzzle, int num){
     Point pos;
     for (unsigned i = 0; i < puzzle.size(); i++){
@@ -214,7 +215,7 @@ void printPuzzle(vector<vector<int>> puzzle){
 
 //statesList is comprised of all repeat states
 vector<node*> statesList;
-unsigned long nodesExpanded = 0;
+unsigned long nodesExpanded = 1;
 
 //Create Heuristics for different Algorithms:
 //Operators: moveUp, moveDown, moveLeft, moveRight
@@ -281,14 +282,14 @@ public:
     }
         
     queue<node*> EXPAND( node* headNode, Problem problem){
-        
-        nodesExpanded = nodesExpanded + 1;
         //This places the Initial Problem state into our repeated states list
+        nodesExpanded = nodesExpanded + 1;
         if (statesList.empty()){
             calculateH(headNode);
             headNode->f = headNode->h + headNode->depth;
             statesList.push_back(headNode);
         }
+        
         
         //Make our children and store them in the sorted order vector
         sortedOrder = makeChildren(headNode, problem);
@@ -298,8 +299,10 @@ public:
             sortedOrder.at(i)->f = sortedOrder.at(i)->h + sortedOrder.at(i)->depth;
         }
         
-        
+        //Children are ordered by f
         sort(sortedOrder.begin(), sortedOrder.end(), lesser_f());
+        
+        //We have created a final Values vector list which will combine the new children with the older parents and order them by f(n)
         vector<node*> finalVals;
         //While we check if any of the children have been repeated, we want to put all the new ones in our Final Values vector
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
@@ -311,13 +314,12 @@ public:
         
         //Final values now takes in the prior nodes in our original nodes queue and will then sort the new children with old parents
         while (!localNodes.empty()){
-            node* front = new node;
-            front = localNodes.front();
+            node* front = localNodes.front();
             finalVals.push_back(front);
             localNodes.pop();
         }
         
-        //Place all the sorted by f(n) nodes from final values vector back into our nodes queue
+        //Place all the sorted by f(n) nodes from final values vector back into our nodes queue and then return the nodes back
         sort(finalVals.begin(), finalVals.end(), lesser_f());
         for (unsigned i = 0; i < finalVals.size(); ++i){
             localNodes.push(finalVals.at(i));
@@ -411,6 +413,7 @@ public:
             statesList.push_back(headNode);
         }
         
+        
         //Make our children and store them in the sorted order vector
         sortedOrder = makeChildren(headNode, problem);
         
@@ -419,7 +422,10 @@ public:
             sortedOrder.at(i)->f = sortedOrder.at(i)->h + sortedOrder.at(i)->depth;
         }
         
+        //Children are ordered by f
         sort(sortedOrder.begin(), sortedOrder.end(), lesser_f());
+        
+        //We have created a final Values vector list which will combine the new children with the older parents and order them by f(n)
         vector<node*> finalVals;
         //While we check if any of the children have been repeated, we want to put all the new ones in our Final Values vector
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
@@ -431,13 +437,12 @@ public:
         
         //Final values now takes in the prior nodes in our original nodes queue and will then sort the new children with old parents
         while (!localNodes.empty()){
-            node* front = new node;
-            front = localNodes.front();
+            node* front = localNodes.front();
             finalVals.push_back(front);
             localNodes.pop();
         }
         
-        //Place all the sorted by f(n) nodes from final values vector back into our nodes queue
+        //Place all the sorted by f(n) nodes from final values vector back into our nodes queue and then return the nodes back
         sort(finalVals.begin(), finalVals.end(), lesser_f());
         for (unsigned i = 0; i < finalVals.size(); ++i){
             localNodes.push(finalVals.at(i));
@@ -488,12 +493,10 @@ public:
             sortedOrder.at(i)->f = sortedOrder.at(i)->h + sortedOrder.at(i)->depth;
         }
         
+        //Children are ordered by f
         sort(sortedOrder.begin(), sortedOrder.end(), lesser_f());
-//        int minH = sortedOrder.at(0)->h;
-//        while ( sortedOrder.at(sortedOrder.size() - 1)->h != minH ){
-//            sortedOrder.pop_back();
-//        }
         
+        //We have created a final Values vector list which will combine the new children with the older parents and order them by f(n)
         vector<node*> finalVals;
         //While we check if any of the children have been repeated, we want to put all the new ones in our Final Values vector
         for (unsigned i = 0; i < sortedOrder.size(); ++i){
@@ -510,7 +513,7 @@ public:
             localNodes.pop();
         }
         
-        //Place all the sorted by f(n) nodes from final values vector back into our nodes queue
+        //Place all the sorted by f(n) nodes from final values vector back into our nodes queue and then return the nodes back
         sort(finalVals.begin(), finalVals.end(), lesser_f());
         for (unsigned i = 0; i < finalVals.size(); ++i){
             localNodes.push(finalVals.at(i));
@@ -532,7 +535,6 @@ node* general_search( Problem problem, QUEUEING_FUNCTION q){
     queue<node*> nodes;
     //MAKE-NODE WITH problem.INITIAL-STATE
     root->STATE = problem.INITIALSTATE; root->depth = 0; root->zeroPoint = findPos(root->STATE, 0);
-    nodesExpanded = nodesExpanded + 1;
     //NODES = MAKE-QUEUE(MAKE-NODE(PROBLEM.INITIALSTATE))
     nodes.push(root);
     
@@ -540,36 +542,37 @@ node* general_search( Problem problem, QUEUEING_FUNCTION q){
     while ( !nodes.empty() ){
         //node = REMOVE-FRONT(nodes)
        
-        node* headNode = nodes.front();
+        node* Node = nodes.front();
         nodes.pop();
         
         cout << endl;
         //if problem.GOAL-TEST(node.STATE) succeeds then RETURN NODE
-        if ( problem.GOALTEST(headNode->STATE) ){
+        if ( problem.GOALTEST(Node->STATE) ){
+            if (Node->depth == 0) { nodesExpanded = 0;}
             cout << "Goal state!" << endl;
-            cout << "Solution Depth was " << headNode->depth << endl;
+            cout << "Solution Depth was " << Node->depth << endl;
             cout << "Number of nodes expanded: " << nodesExpanded << endl;
             cout << "Max queue size: " << maxQueueSize << endl;
-            return headNode;
+            return Node;
         }
         //nodes = QUEUEING-FUNCTION(NODES,EXPAND(NODE,PROBLEM.operators))
         if (type == 0){
             QUEUEING_FUNCTION QUEUEINGFUNCTION(nodes);
-            nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
+            nodes = QUEUEINGFUNCTION.EXPAND(Node, problem);
         }
         else if (type == 1){
             AstarMisplacedTile QUEUEINGFUNCTION(nodes);
-            nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
+            nodes = QUEUEINGFUNCTION.EXPAND(Node, problem);
         }
         else{
             AstarManhattanDistance QUEUEINGFUNCTION(nodes);
-            nodes = QUEUEINGFUNCTION.EXPAND(headNode, problem);
+            nodes = QUEUEINGFUNCTION.EXPAND(Node, problem);
         }
         if (nodes.size() > maxQueueSize){
             maxQueueSize = nodes.size();
         }
-        cout << "The best state to expand with a g(n) = " << headNode->depth << " and a h(n) = " << headNode->h << " is:" << endl;
-        printPuzzle(headNode->STATE);
+        cout << "The best state to expand with a g(n) = " << Node->depth << " and a h(n) = " << Node->h << " is:" << endl;
+        printPuzzle(Node->STATE);
         
     }
     cout << "Failure" << endl;
@@ -583,7 +586,7 @@ node* general_search( Problem problem, QUEUEING_FUNCTION q){
 vector<vector<int>> getTest (int num){
     switch(num){
         case 1:
-            return EamonnTest;
+            return Depth0;
         case 2:
             return Depth2;
         case 3:
@@ -647,7 +650,7 @@ int main(int argc, const char * argv[]) {
         cin >> num;
         while ( !(num == 1 || num == 2 || num == 3 || num == 4 || num == 5 || num == 6 || num == 7 || num == 8) ){
             cout << "Please enter a valid input\n";
-            cin >> input;
+            cin >> num;
         }
         problem.INITIALSTATE = getTest(num);
         
